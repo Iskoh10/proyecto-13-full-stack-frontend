@@ -1,0 +1,44 @@
+li > a {
+  font-size: clamp(1rem, 2vw, 2em);
+  color: var(--isc-accent-color);
+  padding: 0.2em 0.4em;
+  background: transparent;
+  position: relative;
+  transition: all 0.4s ease;
+}
+
+li > a.active {
+  color: var(--isc-secondary-color);
+}
+
+li > a::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    0deg,
+    hsla(var(--isc-active-link-navbar), 0.5) 0%,
+    hsla(var(--isc-active-link-navbar), 0) 100%
+  );
+  opacity: 0;
+}
+
+.active::before {
+  opacity: 1;
+  transition: opacity 0.8s ease;
+}
+
+li > a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: 0;
+  width: 0;
+  height: 3px;
+  background-color: hsl(var(--isc-active-link-navbar));
+}
+
+.active::after {
+  width: 100%;
+  transition: all 0.5s ease-in-out;
+}

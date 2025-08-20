@@ -1,0 +1,21 @@
+main.products {
+  display: flex;
+  flex-direction: column;
+  min-height: 100svh;
+  width: 100%;
+  background-color: rgb(200, 103, 230);
+}
+
+.product-card {
+  width: 100%;
+  max-width: 200px;
+}
+
+.products-pagination {
+  margin-top: auto;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem 0;
+}

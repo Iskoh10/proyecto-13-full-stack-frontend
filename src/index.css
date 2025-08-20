@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Bungee&display=swap');
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  text-decoration: none;
+  list-style: none;
+  font-family: 'Bungee', sans-serif;
+}
+
+:root {
+  --isc-primary-color: hsl(109, 27%, 12%);
+  --isc-secondary-color: hsl(42, 89%, 50%);
+  --isc-accent-color: hsl(32, 45%, 62%);
+  --isc-dark-accent-color: hsl(26, 59%, 38%);
+  --isc-gray-100: hsl(0, 0%, 97%);
+
+  --isc-active-link-navbar: 42, 89%, 50%;
+}
+
+.flex-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}

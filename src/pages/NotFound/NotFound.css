@@ -1,0 +1,15 @@
+main.not_found {
+  width: 100vw;
+  height: 100dvh;
+  background-color: var(--isc-dark-accent-color);
+}
+
+.not_found a {
+  background-color: var(--isc-accent-color);
+  color: var(--isc-dark-accent-color);
+}
+
+.not_found a:hover {
+  background-color: var(--isc-secondary-color);
+  color: var(--isc-primary-color);
+}

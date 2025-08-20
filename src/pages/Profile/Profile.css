@@ -1,0 +1,21 @@
+.profile {
+  min-height: 100svh;
+  justify-content: flex-start;
+  flex-direction: column;
+}
+
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #ticketToPrint,
+  #ticketToPrint * {
+    visibility: visible;
+  }
+  #ticketToPrint {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+  }
+}
