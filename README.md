@@ -27,7 +27,7 @@ La app permite:
 
 ## Capturas de pantalla
 
-![Home](/screenshots/home.png)
+![Home](https://github.com/Iskoh10/proyecto-13-full-stack-frontend/blob/main/public/screenshots/home.png?raw=true)
 
 ---
 
