@@ -1,5 +1,6 @@
 import { Flex } from '@chakra-ui/react';
 import CustomLink from '../CustomLink/CustomLink';
+import { Link } from 'react-router-dom';
 
 const NavBar = ({ user }) => {
   return (
@@ -17,6 +18,22 @@ const NavBar = ({ user }) => {
         <CustomLink link='/blog' nameLink='Blog' />
 
         {user && <CustomLink link='/profile' nameLink='Mi cuenta' />}
+        {user?.role === 'admin' && (
+          <Link to='/dashboard'>
+            <Flex
+              boxSize={50}
+              border='5px solid  #fff'
+              borderRadius='50%'
+              justify='center'
+              align='center'
+              position='fixed'
+              top={2}
+              right={2}
+            >
+              ☢️
+            </Flex>
+          </Link>
+        )}
       </Flex>
     </Flex>
   );

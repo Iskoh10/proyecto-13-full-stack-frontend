@@ -18,9 +18,3 @@
 
   --isc-active-link-navbar: 42, 89%, 50%;
 }
-
-.flex-container {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}

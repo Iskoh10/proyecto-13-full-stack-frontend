@@ -234,5 +234,3 @@ const Cart = ({
 };
 
 export default Cart;
-
-// Hacer el parallax, hacer el dashboard del admin arquitectura, hacer el readme del frontend, añadir el stripe listen --forward-to http://localhost:3000/api/v1/webhooks/stripe, y como instalarlo?¿

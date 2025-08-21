@@ -11,6 +11,7 @@ import Profile from './pages/Profile/Profile';
 import ProtectedRoute from './components/ProtectedRoute/ProtectedRoute';
 import PublicRoute from './components/PublicRoute/PublicRoute';
 import PaymentSuccess from './pages/PaymentSuccess/PaymentSuccess';
+import Dashboard from './pages/Dashboard/Dashboard';
 
 function App() {
   return (
@@ -37,8 +38,16 @@ function App() {
               </ProtectedRoute>
             }
           />
-          <Route path='/payment-success' element={<PaymentSuccess />}></Route>
+          <Route path='/payment-success' element={<PaymentSuccess />} />
         </Route>
+        <Route
+          path='/dashboard'
+          element={
+            <ProtectedRoute requiredRole='admin'>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
         <Route path='*' element={<NotFound />} />
       </Routes>
     </>

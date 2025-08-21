@@ -1,44 +1,78 @@
 import { createContext, useContext, useEffect, useState } from 'react';
+import useCustomToast from '../hooks/useCustomToast';
 
 const UserContext = createContext(null);
 
 export const UserProvider = ({ children }) => {
   const [user, setUser] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const { showToast } = useCustomToast();
 
-  useEffect(() => {
-    fetch('http://localhost:3000/api/v1/auth/me', {
-      credentials: 'include'
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          setUser(null);
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (!data) {
-          setUser(null);
-          return;
-        }
-        setUser(data.user);
-      })
-      .catch((error) => {
-        showToast({
-          title: 'Error al obtener usuario',
-          description: 'Inténtalo de nuevo más tarde.',
-          status: 'error'
-        });
-        setUser(null);
-      })
-      .finally(() => {
-        setLoading(false);
+  // useEffect(() => {
+  //   fetch('http://localhost:3000/api/v1/auth/me', {
+  //     credentials: 'include'
+  //   })
+  //     .then((res) => {
+  //       if (res.status === 401) {
+  //         setUser(null);
+  //         return null;
+  //       }
+  //       return res.json();
+  //     })
+  //     .then((data) => {
+  //       if (!data) {
+  //         setUser(null);
+  //         return;
+  //       }
+  //       setUser(data.user);
+  //     })
+  //     .catch((error) => {
+  //       showToast({
+  //         title: 'Error al obtener usuario',
+  //         description: 'Inténtalo de nuevo más tarde.',
+  //         status: 'error'
+  //       });
+  //       setUser(null);
+  //     })
+  //     .finally(() => {
+  //       setLoading(false);
+  //     });
+  // }, []);
+
+  const checkUser = async () => {
+    setLoading(true);
+    try {
+      const res = await fetch('http://localhost:3000/api/v1/auth/me', {
+        credentials: 'include'
       });
-  }, []);
 
-  const loginUser = (userData) => {
-    setUser(userData);
+      if (res.status === 401) {
+        setUser(null);
+        return;
+      }
+
+      const data = await res.json();
+      return data.user;
+    } catch (error) {
+      showToast({
+        title: 'Error al obtener usuario',
+        description: 'Inténtalo de nuevo más tarde.',
+        status: 'error'
+      });
+      setUser(null);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const loginUser = async () => {
+    const userData = await checkUser();
+
+    if (userData) {
+      setUser(userData);
+    } else {
+      setUser(null);
+    }
   };
 
   const logoutUser = async () => {
@@ -48,16 +82,7 @@ export const UserProvider = ({ children }) => {
         credentials: 'include'
       });
 
-      const res = await fetch('http://localhost:3000/api/v1/auth/me', {
-        credentials: 'include'
-      });
-
-      if (res.status === 401) {
-        setUser(null);
-      } else {
-        const data = await res.json();
-        setUser(data.user);
-      }
+      setUser(null);
     } catch (error) {
       showToast({
         title: 'Error al cerrar sesión',
@@ -70,7 +95,7 @@ export const UserProvider = ({ children }) => {
 
   return (
     <UserContext.Provider
-      value={{ user, setUser, loading, loginUser, logoutUser }}
+      value={{ user, setUser, loading, loginUser, logoutUser, checkUser }}
     >
       {children}
     </UserContext.Provider>

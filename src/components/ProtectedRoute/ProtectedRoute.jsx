@@ -2,7 +2,7 @@ import { Navigate } from 'react-router-dom';
 import { useUser } from '../../Providers/UserContext';
 import { Spinner } from '@chakra-ui/react';
 
-const ProtectedRoute = ({ children }) => {
+const ProtectedRoute = ({ children, requiredRole }) => {
   const { user, loading } = useUser();
 
   if (loading) {
@@ -11,6 +11,10 @@ const ProtectedRoute = ({ children }) => {
 
   if (!user) {
     return <Navigate to='/login' replace />;
+  }
+
+  if (requiredRole && user.role !== requiredRole) {
+    return <Navigate to='/' replace />;
   }
 
   return <>{children}</>;
