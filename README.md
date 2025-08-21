@@ -27,7 +27,7 @@ La app permite:
 
 ## Capturas de pantalla
 
-![Home](./screenshots/home.png)
+![Home](/screenshots/home.png)
 
 ---
 
