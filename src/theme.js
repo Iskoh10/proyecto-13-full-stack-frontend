@@ -7,7 +7,8 @@ const theme = extendTheme({
       secondary: 'hsl(42, 89%, 50%)',
       accent: 'hsl(32, 45%, 62%)',
       darkAccent: 'hsl(26, 59%, 38%)',
-      gray100: 'hsl(0, 0%, 97%)'
+      gray100: 'hsl(0, 0%, 97%)',
+      gray800: 'hsla(220, 26%, 14%, 1.00)'
     }
   },
   fonts: {

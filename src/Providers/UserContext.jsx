@@ -8,36 +8,12 @@ export const UserProvider = ({ children }) => {
   const [loading, setLoading] = useState(false);
   const { showToast } = useCustomToast();
 
-  // useEffect(() => {
-  //   fetch('http://localhost:3000/api/v1/auth/me', {
-  //     credentials: 'include'
-  //   })
-  //     .then((res) => {
-  //       if (res.status === 401) {
-  //         setUser(null);
-  //         return null;
-  //       }
-  //       return res.json();
-  //     })
-  //     .then((data) => {
-  //       if (!data) {
-  //         setUser(null);
-  //         return;
-  //       }
-  //       setUser(data.user);
-  //     })
-  //     .catch((error) => {
-  //       showToast({
-  //         title: 'Error al obtener usuario',
-  //         description: 'Inténtalo de nuevo más tarde.',
-  //         status: 'error'
-  //       });
-  //       setUser(null);
-  //     })
-  //     .finally(() => {
-  //       setLoading(false);
-  //     });
-  // }, []);
+  useEffect(() => {
+    const initUser = async () => {
+      await loginUser();
+    };
+    initUser();
+  }, []);
 
   const checkUser = async () => {
     setLoading(true);

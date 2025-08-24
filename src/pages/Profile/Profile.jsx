@@ -114,6 +114,7 @@ const Profile = () => {
 
   const handleUpdate = async (field, value) => {
     dispatch({ type: 'UPDATE_FIELD', field, value });
+
     try {
       const res = await fetch(
         `http://localhost:3000/api/v1/users/${user._id}`,
@@ -126,9 +127,20 @@ const Profile = () => {
       );
 
       if (!res.ok) throw new Error('No se pudo actualizar');
-      const updatedUser = await res.json();
-      dispatch({ type: 'SET_USER', user: updatedUser });
-      setUser(updatedUser);
+
+      const resData = await res.json();
+      const updatedUser = resData.user;
+
+      if (field !== 'password') {
+        dispatch({ type: 'SET_USER', user: updatedUser });
+        setUser(updatedUser);
+      }
+
+      showToast({
+        title: 'Usuario actualizado',
+        description: `${field} actualizado correctamente`,
+        status: 'success'
+      });
     } catch (error) {
       showToast({
         title: 'Error al actualizar usuario',
@@ -260,9 +272,11 @@ const Profile = () => {
                   />
                 )}
               </Flex>
-              <Button colorScheme='red' onClick={onDeleteOpen}>
-                Eliminar cuenta
-              </Button>
+              {user?.role === 'admin' ? null : (
+                <Button colorScheme='red' onClick={onDeleteOpen}>
+                  Eliminar cuenta
+                </Button>
+              )}
 
               <CustomModal isOpen={isDeleteOpen} onClose={onDeleteClose}>
                 <Flex direction='column' textAlign='center' mt={5}>

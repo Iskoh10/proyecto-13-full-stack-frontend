@@ -7,9 +7,9 @@ import {
   ModalOverlay
 } from '@chakra-ui/react';
 
-const CustomModal = ({ isOpen, onClose, children }) => {
+const CustomModal = ({ isOpen, onClose, children, size = 'lg' }) => {
   return (
-    <Modal isOpen={isOpen} onClose={onClose} size='lg'>
+    <Modal isOpen={isOpen} onClose={onClose} size={size}>
       <ModalOverlay />
       <ModalContent>
         <ModalBody>{children}</ModalBody>

@@ -41,7 +41,7 @@ function App() {
           <Route path='/payment-success' element={<PaymentSuccess />} />
         </Route>
         <Route
-          path='/dashboard'
+          path='/dashboard/*'
           element={
             <ProtectedRoute requiredRole='admin'>
               <Dashboard />

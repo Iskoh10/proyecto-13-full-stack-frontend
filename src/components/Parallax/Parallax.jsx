@@ -61,7 +61,7 @@ const Parallax = () => {
         </MotionText>
 
         <MotionImage
-          src='./public/assets/parallax/bread1.jpg'
+          src='./assets/parallax/bread1.jpg'
           alt='bread1'
           width='35%'
           p={5}
@@ -80,7 +80,7 @@ const Parallax = () => {
         <Flex direction='column'>
           <MotionImage
             borderRadius='100%'
-            src='./public/assets/parallax/bread2.jpg'
+            src='./assets/parallax/bread2.jpg'
             alt='bread2'
             width='100%'
             p={5}
@@ -93,7 +93,7 @@ const Parallax = () => {
           />
 
           <MotionImage
-            src='./public/assets/parallax/bread3.png'
+            src='./assets/parallax/bread3.png'
             alt='bread3'
             ml='50px'
             width='50%'
@@ -157,7 +157,7 @@ const Parallax = () => {
         </MotionText>
 
         <MotionImage
-          src='./public/assets/parallax/bread4.png'
+          src='./assets/parallax/bread4.png'
           alt='bread1'
           width='35%'
           p={4}

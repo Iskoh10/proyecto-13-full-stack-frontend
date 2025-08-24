@@ -1,23 +1,33 @@
 import {
+  Box,
   Button,
   Flex,
   Heading,
   Image,
+  Input,
+  Spinner,
+  Stack,
   Text,
   useDisclosure
 } from '@chakra-ui/react';
 import './Workshops.css';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import useCustomToast from '../../hooks/useCustomToast';
 import CustomModal from '../../components/CustomModal/CustomModal';
+import { useUser } from '../../Providers/UserContext';
 
 const Workshops = () => {
   const [selectedWorkshop, setSelectedWorkshop] = useState(null);
   const [workshops, setWorkshops] = useState([]);
+  const [loading, setLoading] = useState(false);
   const { showToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const commentRef = useRef();
+  const [loadingComment, setLoadingComment] = useState(false);
+  const { user } = useUser();
 
   useEffect(() => {
+    setLoading(true);
     const fetchWorkshop = async () => {
       try {
         const res = await fetch('http://localhost:3000/api/v1/workshops');
@@ -28,6 +38,7 @@ const Workshops = () => {
 
         const data = await res.json();
         setWorkshops(data);
+        setLoading(false);
       } catch (error) {
         showToast({
           title: 'Error',
@@ -38,6 +49,107 @@ const Workshops = () => {
     };
     fetchWorkshop();
   }, []);
+
+  const handleVote = async (workshopId, action) => {
+    if (!user) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/v1/workshops/${workshopId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action })
+        }
+      );
+
+      if (!res.ok) throw new Error('Error al votar');
+
+      const updatedWorkshop = await res.json();
+
+      setWorkshops((prev) =>
+        prev.map((workshop) =>
+          workshop._id === updatedWorkshop._id ? updatedWorkshop : workshop
+        )
+      );
+
+      if (selectedWorkshop?._id === updatedWorkshop._id) {
+        setSelectedWorkshop(updatedWorkshop);
+      }
+    } catch (error) {
+      showToast({
+        title: 'Error',
+        description: 'No se pudo registrar tu voto',
+        status: 'error'
+      });
+    }
+  };
+
+  const hasVote =
+    selectedWorkshop &&
+    user &&
+    (selectedWorkshop.likes.some((u) => u._id === user._id) ||
+      selectedWorkshop.dislikes.some((u) => u._id === user._id));
+
+  const handleAddComment = async () => {
+    const text = commentRef.current.value;
+    if (!text.trim()) {
+      commentRef.current.value = '';
+      return;
+    }
+
+    setLoadingComment(true);
+    try {
+      const res = await fetch('http://localhost:3000/api/v1/comments', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        credentials: 'include',
+        body: JSON.stringify({
+          text,
+          target: 'Workshop',
+          eventId: selectedWorkshop._id
+        })
+      });
+
+      if (!res.ok) throw new Error('Error al crear el comentario');
+
+      const createdComment = await res.json();
+      const commentWithUser = { ...createdComment, user };
+
+      setSelectedWorkshop((prev) => ({
+        ...prev,
+        comments: [...prev.comments, commentWithUser]
+      }));
+
+      setWorkshops((prev) =>
+        prev.map((workshop) =>
+          workshop._id === selectedWorkshop._id
+            ? { ...workshop, comments: [...workshop.comments, createdComment] }
+            : workshop
+        )
+      );
+
+      commentRef.current.value = '';
+    } catch (error) {
+      showToast({
+        title: 'Error',
+        description: 'Error al comentar',
+        status: 'error'
+      });
+    } finally {
+      setLoadingComment(false);
+    }
+  };
+
+  if (loading)
+    return (
+      <Stack align='center' justify='center' height='100svh'>
+        <Spinner size='xl' color='red' />
+      </Stack>
+    );
 
   return (
     <main className='workshops'>
@@ -100,18 +212,38 @@ const Workshops = () => {
       </Flex>
       {selectedWorkshop && (
         <CustomModal isOpen={isOpen} onClose={onClose}>
-          <Flex direction='column' align='center'>
+          <Flex direction='column' align='center' mt={5}>
             <Heading textAlign='center'>{selectedWorkshop.title}</Heading>
             <Text>{selectedWorkshop.description}</Text>
-
-            <Text width='70%'>
-              Asistentes: [ {selectedWorkshop.attendees} ]
-            </Text>
-            <Text width='70%'>Me gusta: [ {selectedWorkshop.likes} 💚 ]</Text>
-            <Text width='70%'>
-              No me gusta: [ {selectedWorkshop.dislikes} 💔 ]
-            </Text>
-            <Text width='70%'>Comentarios: [ {selectedWorkshop.likes} ]</Text>
+            {user ? (
+              <Flex direction='column' mt={5}>
+                <Text width='70%'>
+                  Asistentes: [ {selectedWorkshop.attendees} ]
+                </Text>
+                <Text width='70%'>
+                  Me gusta: [ {selectedWorkshop.likes.length} 💚 ]
+                </Text>
+                <Text width='70%'>
+                  No me gusta: [ {selectedWorkshop.dislikes.length} 💔 ]
+                </Text>
+                <Flex mt={3} justify='center' gap={4}>
+                  <Button
+                    bg='green.300'
+                    onClick={() => handleVote(selectedWorkshop._id, 'like')}
+                    disabled={hasVote}
+                  >
+                    💚 Me gusta
+                  </Button>
+                  <Button
+                    bg='red.300'
+                    onClick={() => handleVote(selectedWorkshop._id, 'dislike')}
+                    disabled={hasVote}
+                  >
+                    💔 No me gusta
+                  </Button>
+                </Flex>
+              </Flex>
+            ) : null}
             <Flex width='50%' justify='center' textAlign='center' mt={4}>
               {selectedWorkshop.fileUrl && (
                 <Flex direction='column' justify='center' gap={5}>
@@ -134,6 +266,52 @@ const Workshops = () => {
                 </Flex>
               )}
             </Flex>
+            {user ? (
+              <Box
+                border='1px solid'
+                borderColor='gray.400'
+                borderRadius='10px'
+                p={5}
+                mt={3}
+              >
+                <Text width='70%' fontSize='2rem'>
+                  Comentarios
+                </Text>
+                <Stack mt={5} width='100%'>
+                  {selectedWorkshop.comments.map((comment) => (
+                    <Flex
+                      key={comment._id}
+                      align='center'
+                      justify='space-between'
+                      p={2}
+                      borderBottom='1px solid gray'
+                    >
+                      <Text fontSize='1rem'>{comment.text}</Text>
+                      <Text color='gray.400'>{comment.user.name}</Text>
+                    </Flex>
+                  ))}
+
+                  <Flex mt={3} gap={2}>
+                    <Input
+                      type='text'
+                      placeholder='Escribe un comentario...'
+                      ref={commentRef}
+                    />
+                    <Button
+                      colorScheme='red'
+                      onClick={handleAddComment}
+                      disabled={loadingComment}
+                    >
+                      {loadingComment ? 'Enviando...' : 'Comentar'}
+                    </Button>
+                  </Flex>
+                </Stack>
+              </Box>
+            ) : (
+              <Text mt={3} color='gray.500' textAlign='center'>
+                Inicia sesión para ver likes y comentarios.
+              </Text>
+            )}
           </Flex>
         </CustomModal>
       )}
