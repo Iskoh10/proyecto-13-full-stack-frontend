@@ -154,7 +154,11 @@ const Dashboard = () => {
               </Button>
             </VStack>
           </Box>
-          <Box width='calc(100% - 200px)' h='100svh'>
+          <Box
+            width='calc(100% - 200px)'
+            minH='calc(100vh - 5svh)'
+            marginTop='5svh'
+          >
             <Routes>
               <Route index element={<MainDashboard />} />
               <Route path='users' element={<Users />} />

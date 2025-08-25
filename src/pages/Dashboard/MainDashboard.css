@@ -1,8 +1,8 @@
 .main-dashboard {
   width: 98%;
-  min-height: 100svh;
+  min-height: calc(100svh - 5svh);
   position: relative;
-  top: 20px;
+  top: -2rem;
   left: 200px;
   border: 1px solid black;
   border-radius: 10px;
