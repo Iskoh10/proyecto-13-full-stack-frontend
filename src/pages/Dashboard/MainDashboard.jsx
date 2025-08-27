@@ -44,7 +44,11 @@ const MainDashboard = () => {
             <Icon as={FaClipboardList} boxSize={12}></Icon>
             <Flex direction='column' ml={5}>
               <Text fontSize='2rem' color='isc.darkAccent'>
-                {ordersThisMonth.length}
+                {console.log(ordersThisMonth)}
+                {
+                  ordersThisMonth.filter?.((order) => !order.customer.isDeleted)
+                    .length
+                }
               </Text>
               <Text>Pedidos este mes</Text>
             </Flex>
@@ -62,7 +66,7 @@ const MainDashboard = () => {
             <Icon as={FaUserCheck} boxSize={12}></Icon>
             <Flex direction='column' ml={5}>
               <Text fontSize='2rem' color='isc.darkAccent'>
-                {users.users?.length}
+                {users.users?.filter?.((user) => !user?.isDeleted).length}
               </Text>
               <Text>Clientes registrados</Text>
             </Flex>
@@ -82,6 +86,7 @@ const MainDashboard = () => {
               <Text fontSize='2rem' color='isc.darkAccent'>
                 €
                 {ordersThisMonth
+                  .filter?.((order) => !order.customer.isDeleted)
                   .reduce((acc, order) => acc + order.totalPrice, 0)
                   .toFixed(2)}
                 {console.log()}
@@ -119,40 +124,43 @@ const MainDashboard = () => {
                 </Text>
               </Flex>
               <Divider borderColor='black' mb={10} />
+              {console.log(orders)}
+              {orders
+                .filter((order) => !order.customer.isDeleted)
+                .slice(-10)
+                .map((order, index) => {
+                  const { text, color } = getStatusProps(order.status);
+                  const bgColor = index % 2 === 0 ? 'white' : 'gray.100';
 
-              {orders.slice(-10).map((order, index) => {
-                const { text, color } = getStatusProps(order.status);
-                const bgColor = index % 2 === 0 ? 'white' : 'gray.100';
-
-                return (
-                  <Flex
-                    key={order._id}
-                    w='100%'
-                    justify='space-around'
-                    align='center'
-                    borderRadius='10px'
-                    p={2}
-                    bg={bgColor}
-                    _hover={{ bg: 'gray.200' }}
-                  >
-                    <Text flex='1' textAlign='left'>
-                      {order.customer.name} {order.customer.lastName}
-                    </Text>
-                    <Text flex='1' textAlign='left'>
-                      {formatDate(order.deliveryDate, true)}
-                    </Text>
-                    <Box
-                      flex='1'
-                      textAlign='left'
-                      bg={color}
+                  return (
+                    <Flex
+                      key={order._id}
+                      w='100%'
+                      justify='space-around'
+                      align='center'
                       borderRadius='10px'
                       p={2}
+                      bg={bgColor}
+                      _hover={{ bg: 'gray.200' }}
                     >
-                      {text}
-                    </Box>
-                  </Flex>
-                );
-              })}
+                      <Text flex='1' textAlign='left'>
+                        {order.customer.name} {order.customer.lastName}
+                      </Text>
+                      <Text flex='1' textAlign='left'>
+                        {formatDate(order.deliveryDate, true)}
+                      </Text>
+                      <Box
+                        flex='1'
+                        textAlign='left'
+                        bg={color}
+                        borderRadius='10px'
+                        p={2}
+                      >
+                        {text}
+                      </Box>
+                    </Flex>
+                  );
+                })}
             </Flex>
           </Flex>
         </GridItem>

@@ -15,7 +15,7 @@ const Ticket = ({ order, isModal = false }) => {
       boxShadow='sm'
     >
       <Flex direction='column' align='center'>
-        <Image src='./favicon.png' alt='logo' boxSize='50px' />
+        <Image src='/favicon.png' alt='logo' boxSize='50px' />
         <Text fontWeight='bold' color='isc.secondary' mb={4}>
           La Panadería
         </Text>
@@ -41,7 +41,7 @@ const Ticket = ({ order, isModal = false }) => {
         <Text mb={4} textAlign='center'>
           Num. Pedido: {order._id}
         </Text>
-        <Text>Fecha: {formatDate(order.deliveryDate)}</Text>
+        <Text>Fecha: {formatDate(order.deliveryDate, true)}</Text>
       </Flex>
       <Divider borderColor='gray.400' borderWidth='2px' />
 

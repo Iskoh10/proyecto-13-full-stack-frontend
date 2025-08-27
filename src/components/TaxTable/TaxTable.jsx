@@ -13,7 +13,9 @@ const TaxTable = ({ items }) => {
   let base21 = 0;
 
   items.forEach((item) => {
-    const total = item.quantity * item.product.price;
+    const price = item.product ? item.product.price : 0;
+    const total = item.quantity * price;
+
     if (item.typeProduct === 'panaderia') {
       base4 += total;
     } else {

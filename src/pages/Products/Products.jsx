@@ -281,6 +281,10 @@ const Products = () => {
               bg='gray.100'
               p='4'
               borderRadius='md'
+              style={{
+                pointerEvents: item.available ? 'auto' : 'none',
+                opacity: item.available ? 1 : 0.5
+              }}
               align='center'
               justify='space-between'
             >

@@ -1,7 +1,6 @@
 import {
   Button,
   Flex,
-  Icon,
   IconButton,
   Input,
   InputGroup,

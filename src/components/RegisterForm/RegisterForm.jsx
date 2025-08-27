@@ -57,8 +57,8 @@ const RegisterForm = () => {
       onClose();
     } catch (error) {
       showToast({
-        title: 'No se pudo completar la acción',
-        description: error.message || 'Inténtalo de nuevo más tarde',
+        title: 'Error',
+        description: 'No se pudo completar la acción',
         status: 'error'
       });
     }

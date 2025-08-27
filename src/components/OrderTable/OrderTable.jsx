@@ -24,9 +24,15 @@ const OrderTable = ({ items }) => {
           {items.map((item) => (
             <Tr key={item._id}>
               <Td textAlign='center'>{item.quantity}</Td>
-              <Td textAlign='center'>{item.product.nameProduct}</Td>
-              <Td textAlign='center'>€{item.product.price}</Td>
-              <Td textAlign='center'>€{item.product.price * item.quantity}</Td>
+              <Td textAlign='center'>
+                {item.product ? item.product.nameProduct : 'Producto eliminado'}
+              </Td>
+              <Td textAlign='center'>
+                €{item.product ? item.product.price : 0}
+              </Td>
+              <Td textAlign='center'>
+                €{item.product ? item.product.price * item.quantity : 0}
+              </Td>
             </Tr>
           ))}
         </Tbody>
