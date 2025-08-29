@@ -1,12 +1,21 @@
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
+  FormControl,
   FormLabel,
+  Heading,
   Icon,
   IconButton,
+  Image,
   Input,
   InputGroup,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  ModalFooter,
   Text,
   useDisclosure
 } from '@chakra-ui/react';
@@ -18,34 +27,154 @@ import { GiCakeSlice, GiCroissant } from 'react-icons/gi';
 import Switcher from '../../components/Switcher/Switcher';
 import useCustomToast from '../../hooks/useCustomToast';
 import CustomModal from '../../components/CustomModal/CustomModal';
+import { useForm } from 'react-hook-form';
+import { useUser } from '../../Providers/UserContext';
 
 const ProductsDash = () => {
   const {
     products,
     setProducts,
+    loading,
+    setLoading,
     fetchResources,
     filterByCategory,
     deleteResources
   } = useDashboard();
-
+  const { user } = useUser();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      nameProduct: '',
+      description: '',
+      price: '',
+      stock: '',
+      available: true
+    }
+  });
   const inputRef = useRef();
   const { showToast } = useCustomToast();
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const {
+    isOpen: isOpenNewProduct,
+    onOpen: onOpenNewProduct,
+    onClose: onCloseNewProduct
+  } = useDisclosure();
+  const [imageFiles, setImageFiles] = useState([]);
+  const [typeProduct, setTypeProduct] = useState('');
 
-  const handleSearch = () => {
-    const search = inputRef.current.value;
-    if (!search.trim()) return;
+  const handleSearch = async () => {
+    const search = inputRef.current.value.trim();
+    if (!search) return;
 
-    fetchResources(
-      `http://localhost:3000/api/v1/products/filter?nameProduct=${encodeURIComponent(
-        search
-      )}`,
-      setProducts,
-      'products'
-    );
+    console.log('este es el search', search);
 
-    inputRef.current.value = '';
+    const url = new URL('http://localhost:3000/api/v1/products/filter');
+
+    if (!isNaN(search)) {
+      url.searchParams.append('price', search);
+    } else {
+      url.searchParams.append('nameProduct', search);
+    }
+
+    try {
+      setLoading((prev) => ({ ...prev, products: true }));
+
+      const res = await fetch(url.toString(), { credentials: 'include' });
+      const data = await res.json();
+
+      if (!data.products.length) {
+        showToast({
+          description: 'No se encontró ningún producto',
+          status: 'info'
+        });
+      }
+
+      setProducts(data);
+      inputRef.current.value = '';
+    } catch (error) {
+      inputRef.current.value = '';
+      showToast({
+        title: 'Error',
+        description: 'Error en la búsqueda.',
+        status: 'error'
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, products: false }));
+    }
+  };
+
+  const handleSelect = (value) => {
+    setTypeProduct(value);
+  };
+
+  const onSubmit = async (data) => {
+    if (!user) throw new Error('No estás logueado.');
+    if (imageFiles.length === 0) {
+      showToast({
+        title: 'Error',
+        description: 'Sube una imagen',
+        status: 'error'
+      });
+      return;
+    }
+
+    console.log('este es el data:', data);
+    console.log(typeProduct);
+
+    const formData = new FormData();
+    formData.append('nameProduct', data.nameProduct);
+    formData.append('description', data.description);
+    formData.append('price', Number(data.price));
+    formData.append('stock', Number(data.stock));
+    formData.append('productImage', imageFiles[0]);
+    formData.append('available', data.available ? true : false);
+    formData.append('typeProduct', typeProduct);
+    formData.append('user', user._id);
+
+    try {
+      setLoading((prev) => ({ ...prev, products: true }));
+      const url = selectedProduct
+        ? `http://localhost:3000/api/v1/products/${selectedProduct._id}`
+        : 'http://localhost:3000/api/v1/products';
+      const method = selectedProduct ? 'PUT' : 'POST';
+      const res = await fetch(url, {
+        method,
+        credentials: 'include',
+        body: formData
+      });
+
+      if (!res.ok) throw new Error('Error creando/actualizando el producto.');
+
+      reset();
+      setImageFiles([]);
+      setSelectedProduct(null);
+      onCloseNewProduct();
+      fetchResources(
+        'http://localhost:3000/api/v1/products',
+        setProducts,
+        'products'
+      );
+
+      showToast({
+        description: selectedProduct
+          ? 'Producto actualizado correctamente.'
+          : 'Producto creado correctamente.',
+        status: 'success'
+      });
+    } catch (error) {
+      showToast({
+        title: 'Error',
+        description: 'No se pudo guardar el producto',
+        status: 'error'
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, products: false }));
+    }
   };
 
   const handleSwitch = async (productId, currentValue) => {
@@ -69,7 +198,7 @@ const ProductsDash = () => {
       setProducts((prev) => ({
         ...prev,
         products: prev.products.map((p) =>
-          p._id === productId ? data.updated : p
+          p._id === productId ? { ...p, available: !p.available } : p
         )
       }));
 
@@ -114,16 +243,24 @@ const ProductsDash = () => {
             <Text>Productos totales</Text>
           </Flex>
         </Flex>
-        <InputGroup w='50%'>
-          <Input
-            type='search'
-            placeholder='Buscar producto...'
-            ref={inputRef}
-          />
-          <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-            Buscar
-          </Button>
-        </InputGroup>
+        <Flex
+          bg='white'
+          w='600px'
+          p={2}
+          justify='space-between'
+          borderRadius='10px'
+        >
+          <InputGroup w='100%'>
+            <Input
+              type='search'
+              placeholder='Buscar producto...'
+              ref={inputRef}
+            />
+            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
+              Buscar
+            </Button>
+          </InputGroup>
+        </Flex>
       </Flex>
       <Flex align='flex-start' gap={10} bg='white' borderRadius='10px' p={4}>
         <Flex
@@ -211,14 +348,14 @@ const ProductsDash = () => {
         </Flex>
         <Flex direction='column' w='100%' justify='space-between'>
           <Flex w='100%' align='center' mb={10}>
-            <Box flex='1'>
+            <Box w='18%'>
               <Text>Nombre</Text>
             </Box>
             <Box flex='1' w='50'>
               <Text textAlign='right'>Precio</Text>
             </Box>
             <Box flex='1'>
-              <Text textAlign='right' mr={5}>
+              <Text textAlign='left' ml='130px'>
                 Disponible
               </Text>
             </Box>
@@ -228,6 +365,19 @@ const ProductsDash = () => {
               bg='blue.500'
               color='white'
               _hover={{ bg: 'blue.200' }}
+              onClick={() => {
+                setTypeProduct(null);
+                setSelectedProduct(null);
+                reset({
+                  nameProduct: '',
+                  description: '',
+                  price: '',
+                  stock: '',
+                  available: true
+                });
+                setImageFiles([]);
+                onOpenNewProduct();
+              }}
             >
               Nuevo producto
             </Button>
@@ -247,6 +397,20 @@ const ProductsDash = () => {
                   p={2}
                   bg={bgProduct}
                   _hover={{ bg: 'gray.300' }}
+                  cursor='pointer'
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedProduct(product);
+                    reset({
+                      nameProduct: product.nameProduct,
+                      description: product.description,
+                      price: product.price,
+                      stock: product.stock,
+                      available: true
+                    });
+                    setImageFiles([]);
+                    onOpenNewProduct();
+                  }}
                 >
                   <Box flex='1'>
                     <Text>{product.nameProduct}</Text>
@@ -257,7 +421,7 @@ const ProductsDash = () => {
                       € {product.price}
                     </Text>
                   </Box>
-                  <Box flex='1'>
+                  <Box flex='1' onClick={(e) => e.stopPropagation()}>
                     <Switcher
                       isChecked={product.available}
                       onChange={() =>
@@ -267,12 +431,12 @@ const ProductsDash = () => {
                   </Box>
 
                   <IconButton
-                    aria-label='Eliminar usuario'
                     icon={<FaTrash />}
                     colorScheme='red'
                     size='xs'
                     isDisabled={!product.available}
-                    onClick={() => {
+                    onClick={(e) => {
+                      e.stopPropagation();
                       setSelectedProduct(product);
                       onOpen();
                     }}
@@ -309,6 +473,137 @@ const ProductsDash = () => {
                 </Flex>
               </Flex>
             </CustomModal>
+
+            <CustomModal
+              isOpen={isOpenNewProduct}
+              onClose={onCloseNewProduct}
+              size='xl'
+            >
+              <Flex direction='column' align='center' mt={5}>
+                <Heading textAlign='center' mb={3}>
+                  {selectedProduct
+                    ? 'Modificar producto'
+                    : 'Crear nuevo producto'}
+                </Heading>
+                <form id='new-product-form' onSubmit={handleSubmit(onSubmit)}>
+                  <FormControl mb={4} isInvalid={errors.title}>
+                    <FormLabel>Nombre del producto</FormLabel>
+                    <Input
+                      placeholder='Nombre del producto...'
+                      {...register('nameProduct', {
+                        required: 'El nombre es obligatorio'
+                      })}
+                    />
+                  </FormControl>
+
+                  <FormControl mb={4} isInvalid={errors.slug}>
+                    <FormLabel>Descripción</FormLabel>
+                    <Input
+                      placeholder='Descripcion...'
+                      {...register('description', {
+                        required: 'La descripción es obligatorio'
+                      })}
+                    />
+                  </FormControl>
+
+                  <FormControl mb={4} isInvalid={errors.summary}>
+                    <FormLabel>Precio</FormLabel>
+                    <Input
+                      type='number'
+                      step='0.01'
+                      placeholder='Precio...'
+                      {...register('price', {
+                        required: 'El precio es obligatorio'
+                      })}
+                    />
+                  </FormControl>
+
+                  <FormControl mb={4} isInvalid={errors.body}>
+                    <FormLabel>Stock</FormLabel>
+                    <Input
+                      type='number'
+                      placeholder='Stock del producto...'
+                      {...register('stock', {
+                        required: 'El stock es obligatorio'
+                      })}
+                    />
+                  </FormControl>
+
+                  <FormControl mb={4}>
+                    <FormLabel>Imagen</FormLabel>
+                    <Input
+                      type='file'
+                      accept='image/*'
+                      onChange={(e) => {
+                        const file = e.target.files[0];
+                        if (file) setImageFiles([file]);
+                      }}
+                    />
+                    {imageFiles.length > 0 && (
+                      <Image
+                        src={URL.createObjectURL(imageFiles[0])}
+                        alt='preview'
+                        borderRadius='md'
+                        boxSize='200px'
+                        objectFit='cover'
+                      />
+                    )}
+                  </FormControl>
+
+                  <FormControl mb={4}>
+                    <Checkbox {...register('available')}>Disponible</Checkbox>
+                  </FormControl>
+
+                  <FormControl mb={4}>
+                    <Menu>
+                      <MenuButton
+                        as={Box}
+                        m={2}
+                        p={2}
+                        bg='white'
+                        w='250px'
+                        border='1px solid'
+                        borderColor='gray.400'
+                        _hover={{ bg: 'gray.200' }}
+                        borderRadius='md'
+                        cursor='pointer'
+                      >
+                        {typeProduct ? typeProduct : 'Tipo de producto'}
+                      </MenuButton>
+                      <MenuList placement='bottom-start'>
+                        <MenuItem onClick={() => handleSelect('panaderia')}>
+                          Panadería
+                        </MenuItem>
+                        <MenuItem onClick={() => handleSelect('bolleria')}>
+                          Bollería
+                        </MenuItem>
+                        <MenuItem onClick={() => handleSelect('pasteleria')}>
+                          Pastelería
+                        </MenuItem>
+                      </MenuList>
+                    </Menu>
+                  </FormControl>
+
+                  <ModalFooter>
+                    <Button
+                      colorScheme={selectedProduct ? 'red' : 'blue'}
+                      type='submit'
+                      form='new-product-form'
+                      isLoading={loading.products}
+                      loadingText={
+                        selectedProduct ? 'Modificando...' : 'Creando...'
+                      }
+                      isDisabled={loading.products}
+                    >
+                      {selectedProduct ? 'Modificar' : 'Crear'}
+                    </Button>
+                    <Button ml={3} onClick={onCloseNewProduct}>
+                      Cancelar
+                    </Button>
+                  </ModalFooter>
+                </form>
+              </Flex>
+            </CustomModal>
           </Flex>
         </Flex>
       </Flex>
@@ -317,5 +612,3 @@ const ProductsDash = () => {
 };
 
 export default ProductsDash;
-
-//! implementar la busqueda por precio, boton crear nuevo producto etc.

@@ -4,7 +4,10 @@ import { useDashboard } from '../../Providers/DashboardContext';
 import {
   Box,
   Button,
+  Checkbox,
   Flex,
+  FormControl,
+  FormLabel,
   Grid,
   GridItem,
   Heading,
@@ -13,8 +16,11 @@ import {
   Image,
   Input,
   InputGroup,
+  ModalFooter,
+  SimpleGrid,
   Stack,
   Text,
+  Textarea,
   useDisclosure
 } from '@chakra-ui/react';
 import { GiNotebook } from 'react-icons/gi';
@@ -22,9 +28,18 @@ import { FaPlus, FaTrash } from 'react-icons/fa';
 import Switcher from '../../components/Switcher/Switcher';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import useCustomToast from '../../hooks/useCustomToast';
+import { useForm } from 'react-hook-form';
+import { useUser } from '../../Providers/UserContext';
 
 const BlogDash = () => {
-  const { blogs, setBlogs, fetchResources, deleteResources } = useDashboard();
+  const {
+    blogs,
+    setBlogs,
+    loading,
+    setLoading,
+    fetchResources,
+    deleteResources
+  } = useDashboard();
   const [selectedPost, setSelectedPost] = useState(null);
   const inputRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
@@ -33,13 +48,35 @@ const BlogDash = () => {
     onOpen: onOpenDetail,
     onClose: onCloseDetail
   } = useDisclosure();
+  const {
+    isOpen: isOpenNewPost,
+    onOpen: onOpenNewPost,
+    onClose: onCloseNewPost
+  } = useDisclosure();
   const { showToast } = useCustomToast();
+  const { user } = useUser();
+  const {
+    register,
+    handleSubmit,
+    reset,
+    formState: { errors }
+  } = useForm({
+    defaultValues: {
+      title: '',
+      summary: '',
+      body: '',
+      slug: '',
+      available: true
+    }
+  });
+  const [imageFiles, setImageFiles] = useState([]);
 
   const handleSearch = async () => {
     const search = inputRef.current.value;
     if (!search.trim()) return;
 
     try {
+      setLoading((prev) => ({ ...prev, blogs: true }));
       const res = await fetch(
         `http://localhost:3000/api/v1/blogs/filter/${search}`,
         {
@@ -61,6 +98,7 @@ const BlogDash = () => {
       }
 
       setBlogs(data);
+      inputRef.current.value = '';
     } catch (error) {
       inputRef.current.value = '';
       showToast({
@@ -68,11 +106,78 @@ const BlogDash = () => {
         description: 'Error en la búsqueda.',
         status: 'error'
       });
+    } finally {
+      setLoading((prev) => ({ ...prev, blogs: false }));
     }
   };
 
   const resetBlogs = () => {
     fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
+  };
+
+  const handleImagesChange = (e) => {
+    const files = Array.from(e.target.files).slice(0, 3);
+    setImageFiles(files);
+  };
+
+  const onSubmit = async (data) => {
+    if (!user) throw new Error('No estás logueado.');
+    if (imageFiles.length === 0) {
+      showToast({
+        title: 'Error',
+        description: 'Sube al menos una imagen',
+        status: 'error'
+      });
+      return;
+    }
+
+    const formData = new FormData();
+    formData.append('title', data.title);
+    formData.append('summary', data.summary);
+    formData.append('body', data.body);
+    formData.append('slug', data.slug);
+    formData.append('available', data.available);
+    formData.append('user', user._id);
+
+    imageFiles.forEach((file) => formData.append('image', file));
+
+    try {
+      setLoading((prev) => ({ ...prev, blogs: true }));
+      const url = selectedPost
+        ? `http://localhost:3000/api/v1/blogs/${selectedPost._id}`
+        : 'http://localhost:3000/api/v1/blogs';
+
+      const method = selectedPost ? 'PUT' : 'POST';
+
+      const res = await fetch(url, {
+        method,
+        credentials: 'include',
+        body: formData
+      });
+
+      if (!res.ok) throw new Error('Error creando/actualizando el post.');
+
+      reset();
+      setImageFiles([]);
+      setSelectedPost(null);
+      onCloseNewPost();
+      fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
+
+      showToast({
+        description: selectedPost
+          ? 'Post actualizado correctamente.'
+          : 'Post creado correctamente.',
+        status: 'success'
+      });
+    } catch (error) {
+      showToast({
+        title: 'Error',
+        description: 'No se pudo guardar el post',
+        status: 'error'
+      });
+    } finally {
+      setLoading((prev) => ({ ...prev, blogs: false }));
+    }
   };
 
   const handleSwitch = async (postId, currentValue) => {
@@ -146,11 +251,7 @@ const BlogDash = () => {
           borderRadius='10px'
         >
           <InputGroup w='80%'>
-            <Input
-              type='search'
-              placeholder='Buscar producto...'
-              ref={inputRef}
-            />
+            <Input type='search' placeholder='Buscar post...' ref={inputRef} />
             <Button ml={2} colorScheme='blue' onClick={handleSearch}>
               Buscar
             </Button>
@@ -178,6 +279,18 @@ const BlogDash = () => {
               color='white'
               w='17%'
               _hover={{ bg: 'blue.200' }}
+              onClick={() => {
+                setSelectedPost(null);
+                reset({
+                  title: '',
+                  slug: '',
+                  summary: '',
+                  body: '',
+                  available: true
+                });
+                setImageFiles([]);
+                onOpenNewPost();
+              }}
             >
               Nuevo post
             </Button>
@@ -185,8 +298,11 @@ const BlogDash = () => {
 
           <Grid templateColumns='repeat(4, 1fr)' gap='6'>
             {blogs.map((post) => {
+              const bgPost = !post.available ? 'red.200' : 'white';
+
               return (
                 <GridItem
+                  bg={bgPost}
                   key={post._id}
                   colSpan={1}
                   border='1px solid black'
@@ -204,18 +320,51 @@ const BlogDash = () => {
                     onOpenDetail();
                   }}
                 >
-                  <Box mb={10}>
-                    <Text mb={5}>{post.title}</Text>
-                    <Image src={post.image} width='200px' height='200px' />
+                  <Box mb={10} h='250px'>
+                    <Text mb={5} h='50px'>
+                      {post.title}
+                    </Text>
+                    <Image src={post.image?.[0]} width='200px' height='200px' />
                   </Box>
-
-                  <Flex justify='space-between' mt='auto'>
+                  <Flex justify='center'>
+                    <Text
+                      maxW='250px'
+                      h='100px'
+                      noOfLines={4}
+                      overflow='hidden'
+                      textOverflow='ellipsis'
+                    >
+                      {post.summary}
+                    </Text>
+                  </Flex>
+                  <Flex justify='space-between' align='center' mt='auto'>
                     <Box onClick={(e) => e.stopPropagation()}>
                       <Switcher
                         isChecked={post.available}
                         onChange={() => handleSwitch(post._id, post.available)}
                       />
                     </Box>
+
+                    <Button
+                      bg='red.500'
+                      color='white'
+                      _hover={{ bg: 'red.200' }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedPost(post);
+                        reset({
+                          title: post.title,
+                          slug: post.slug,
+                          summary: post.summary,
+                          body: post.body,
+                          available: post.available
+                        });
+                        setImageFiles([]);
+                        onOpenNewPost();
+                      }}
+                    >
+                      Modificar post
+                    </Button>
 
                     <IconButton
                       icon={<FaTrash />}
@@ -247,30 +396,25 @@ const BlogDash = () => {
                 </Heading>
                 <Text>Título clave: ➡️ {selectedPost.slug}</Text>
                 <Flex mt={5} direction='column' gap={2}>
-                  <Text textAlign='center'>
-                    {selectedPost?.paragraphs?.[0]}
-                  </Text>
-                  <Image
-                    mx='auto'
-                    boxSize='400px'
-                    src={selectedPost.image[0]}
-                  />
-                  <Text textAlign='center'>
-                    {selectedPost?.paragraphs?.[1]}
-                  </Text>
-                  <Image
-                    mx='auto'
-                    boxSize='300px'
-                    src={selectedPost.image[1]}
-                  />
-                  <Text textAlign='center'>
-                    {selectedPost?.paragraphs?.[2]}
-                  </Text>
-                  <Image
-                    mx='auto'
-                    boxSize='200px'
-                    src={selectedPost.image[2]}
-                  />
+                  <Flex mt={5} direction='column' gap={2}>
+                    {selectedPost.image &&
+                      selectedPost.paragraphs &&
+                      selectedPost.image.map((imgSrc, index) => (
+                        <>
+                          {selectedPost.paragraphs[index] && (
+                            <Text key={`p-${index}`} textAlign='center'>
+                              {selectedPost.paragraphs[index]}
+                            </Text>
+                          )}
+                          <Image
+                            key={`img-${index}`}
+                            mx='auto'
+                            boxSize={`${400 - index * 100}px`}
+                            src={imgSrc}
+                          />
+                        </>
+                      ))}
+                  </Flex>
                 </Flex>
 
                 <Flex direction='column' mt={5} w='100%'>
@@ -335,11 +479,100 @@ const BlogDash = () => {
             </Flex>
           </Flex>
         </CustomModal>
+
+        <CustomModal isOpen={isOpenNewPost} onClose={onCloseNewPost} size='xl'>
+          <Flex direction='column' align='center' mt={5}>
+            <Heading textAlign='center' mb={3}>
+              {selectedPost ? 'Modificar post' : 'Crear nuevo post'}
+            </Heading>
+            <form id='new-post-form' onSubmit={handleSubmit(onSubmit)}>
+              <FormControl mb={4} isInvalid={errors.title}>
+                <FormLabel>Título</FormLabel>
+                <Input
+                  placeholder='Título del post'
+                  {...register('title', {
+                    required: 'El título es obligatorio'
+                  })}
+                />
+              </FormControl>
+
+              <FormControl mb={4} isInvalid={errors.slug}>
+                <FormLabel>Slug</FormLabel>
+                <Input
+                  placeholder='Escribe-el-slug-del-post'
+                  {...register('slug', {
+                    required: 'El slug es obligatorio'
+                  })}
+                />
+              </FormControl>
+
+              <FormControl mb={4} isInvalid={errors.summary}>
+                <FormLabel>Resumen</FormLabel>
+                <Input
+                  placeholder='Resumen del post'
+                  {...register('summary', {
+                    required: 'El resumen es obligatorio'
+                  })}
+                />
+              </FormControl>
+
+              <FormControl mb={4} isInvalid={errors.body}>
+                <FormLabel>Contenido</FormLabel>
+                <Textarea
+                  placeholder='Contenido principal'
+                  {...register('body', {
+                    required: 'El contenido es obligatorio'
+                  })}
+                />
+              </FormControl>
+
+              <FormControl mb={4}>
+                <FormLabel>Imágenes (máx. 3)</FormLabel>
+                <Input
+                  type='file'
+                  accept='image/*'
+                  multiple
+                  onChange={handleImagesChange}
+                />
+                {imageFiles.length > 0 && (
+                  <SimpleGrid columns={3} spacing={2} mt={2}>
+                    {imageFiles.map((file, index) => (
+                      <Image
+                        key={index}
+                        src={URL.createObjectURL(file)}
+                        alt={`preview-${index}`}
+                        borderRadius='md'
+                      />
+                    ))}
+                  </SimpleGrid>
+                )}
+              </FormControl>
+
+              <FormControl mb={4}>
+                <Checkbox {...register('available')}>Disponible</Checkbox>
+              </FormControl>
+
+              <ModalFooter>
+                <Button
+                  colorScheme={selectedPost ? 'red' : 'blue'}
+                  type='submit'
+                  form='new-post-form'
+                  isLoading={loading.blogs}
+                  loadingText={selectedPost ? 'modificando...' : 'Creando...'}
+                  isDisabled={loading.blogs}
+                >
+                  {selectedPost ? 'Modificar' : 'Crear'}
+                </Button>
+                <Button ml={3} onClick={onCloseNewPost}>
+                  Cancelar
+                </Button>
+              </ModalFooter>
+            </form>
+          </Flex>
+        </CustomModal>
       </Flex>
     </section>
   );
 };
 
 export default BlogDash;
-
-//! el pulsar la card y poder modificar datos del post, y el boton crear post.

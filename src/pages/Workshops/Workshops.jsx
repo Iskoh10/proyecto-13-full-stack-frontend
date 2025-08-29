@@ -320,3 +320,5 @@ const Workshops = () => {
 };
 
 export default Workshops;
+
+//! MEJORAR LA CARD, revisar el detalle de las cartas

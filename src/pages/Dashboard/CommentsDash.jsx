@@ -83,7 +83,7 @@ const CommentsDash = () => {
             <Text fontSize='2rem' color='isc.darkAccent'>
               {comments?.length}
             </Text>
-            <Text>Posts totales</Text>
+            <Text>Comentarios totales</Text>
           </Flex>
         </Flex>
         <Flex
@@ -96,7 +96,7 @@ const CommentsDash = () => {
           <InputGroup w='80%'>
             <Input
               type='search'
-              placeholder='Buscar producto...'
+              placeholder='Buscar comentario...'
               ref={inputRef}
             />
             <Button ml={2} colorScheme='blue' onClick={handleSearch}>

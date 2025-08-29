@@ -37,14 +37,12 @@ Actualmente, las siguientes funcionalidades aún no están implementadas del tod
 
 - Hace falta abstraer funcionalidades (por ejemplo las del carrito utilizando useReducer).
 - Optimizar para que haya menos re-renderizaciones.
-- Implementar el responsive.
+- Implementar el responsive, será una app de escritorio, y versiones con menos funcionalidad en movil o tablet.
 - Mejorar el UI.
-- Funcionalidad de comentarios y valoración en los talleres y post del blog.
-- Funcionalidad de dashboard:
-  - Implementar varios filtros para agilizar la modificación de los productos o la carta de productos, talleres y posts en el blog.
-  - Implementar un calendario de entrega (drag & drop) de los pedidos y asignarles el status de entregado o cancelado.
-  - Implementar las graficas para visualizar las ventas con distintos filtros (ej: último mes, últimos 6 meses o último año), poder visualizar las ventas de un producto seleccionado, ver fluctuaciones a lo largo del tiempo, etc.
-  - A futuro me gustaria implementar un sistema interno de mensajeria entre el establecimiento y los clientes, por el momento cualquier incidencia sería notificada por correo electrónico o por llamada.
+- Funcionalidad del dashboard:
+  - Idea a futuro implementar un calendario de entrega (drag & drop) de los pedidos.
+  - Idea a futuro implementar las graficas para visualizar las ventas con distintos filtros (ej: último mes, últimos 6 meses o último año), poder visualizar las ventas de un producto seleccionado, ver fluctuaciones a lo largo del tiempo, etc.
+  - Idea a futuro me gustaria implementar un sistema interno de mensajeria entre el establecimiento y los clientes, por el momento cualquier incidencia sería notificada por correo electrónico o por llamada.
 
 ---
 

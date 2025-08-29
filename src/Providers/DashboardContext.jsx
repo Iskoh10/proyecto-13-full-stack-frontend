@@ -82,6 +82,10 @@ export const DashboardProvider = ({ children }) => {
       route = id;
     }
 
+    if (resource === 'workshops') {
+      route = id;
+    }
+
     try {
       const res = await fetch(
         `http://localhost:3000/api/v1/${resource}/${route}`,
@@ -126,6 +130,14 @@ export const DashboardProvider = ({ children }) => {
 
       if (setter === setBlogs) {
         fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
+      }
+
+      if (setter === setWorkshops) {
+        fetchResources(
+          'http://localhost:3000/api/v1/workshops',
+          setWorkshops,
+          'workshops'
+        );
       }
 
       showToast({ description: 'Se eliminó correctamente', status: 'success' });
@@ -176,6 +188,7 @@ export const DashboardProvider = ({ children }) => {
         orders,
         setOrders,
         loading,
+        setLoading,
         users,
         setUsers,
         fetchResources,
@@ -184,6 +197,7 @@ export const DashboardProvider = ({ children }) => {
         setProducts,
         filterByCategory,
         workshops,
+        setWorkshops,
         blogs,
         setBlogs,
         comments,

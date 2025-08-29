@@ -1,6 +1,7 @@
 import {
   Button,
   Flex,
+  Icon,
   IconButton,
   Input,
   InputGroup,
@@ -11,7 +12,7 @@ import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import { useRef, useState } from 'react';
 import useCustomToast from '../../hooks/useCustomToast';
-import { FaTrash } from 'react-icons/fa';
+import { FaTrash, FaUsers } from 'react-icons/fa';
 import CustomModal from '../../components/CustomModal/CustomModal';
 
 const Users = () => {
@@ -47,14 +48,44 @@ const Users = () => {
     <section className='main-dashboard'>
       <HeadingDash>Usuarios</HeadingDash>
 
-      <Flex direction='column'>
-        <InputGroup w='50%' alignSelf='center' mb={10}>
-          <Input type='search' placeholder='Buscar usuario...' ref={inputRef} />
-          <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-            Buscar
-          </Button>
-        </InputGroup>
+      <Flex gap={10} align='center' mb={10}>
+        <Flex
+          h='10svh'
+          bg='white'
+          borderRadius='10px'
+          p={5}
+          align='center'
+          w='25%'
+        >
+          <Icon as={FaUsers} boxSize={12} color='blue.500' />
+          <Flex direction='column' ml={5}>
+            <Text fontSize='2rem' color='isc.darkAccent'>
+              {users?.users?.filter((user) => !user.isDeleted).length}
+            </Text>
+            <Text>Usuarios totales</Text>
+          </Flex>
+        </Flex>
+        <Flex
+          bg='white'
+          w='600px'
+          p={2}
+          justify='space-between'
+          borderRadius='10px'
+        >
+          <InputGroup w='100%'>
+            <Input
+              type='search'
+              placeholder='Buscar usuario...'
+              ref={inputRef}
+            />
+            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
+              Buscar
+            </Button>
+          </InputGroup>
+        </Flex>
+      </Flex>
 
+      <Flex direction='column'>
         <Flex
           className='users-result'
           w='100%'
@@ -64,8 +95,6 @@ const Users = () => {
           p={4}
         >
           <Flex p={2} align='center' gap={2}>
-            Usuarios («{users?.users?.filter((user) => !user.isDeleted).length}
-            »)
             <Button onClick={handleReloadUsers} variant='solid' bg='green.300'>
               Todos
             </Button>

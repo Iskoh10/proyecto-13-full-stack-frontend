@@ -141,14 +141,15 @@ const Dashboard = () => {
                 ))}
               </VStack>
               <Button
-                as={Link}
-                to='/products'
                 variant='solid'
                 colorScheme='whiteAlpha'
                 mb={6}
                 mx={4}
                 border='1px solid red'
                 leftIcon={<FiPower size='20px' />}
+                onClick={() => {
+                  navigate('/products', { replace: true });
+                }}
               >
                 Salir
               </Button>

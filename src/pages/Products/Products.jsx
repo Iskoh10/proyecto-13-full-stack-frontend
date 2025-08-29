@@ -44,6 +44,10 @@ const Products = () => {
   } = useFilterContext();
 
   useEffect(() => {
+    refreshProducts(1);
+  }, []);
+
+  useEffect(() => {
     localStorage.setItem('cartItems', JSON.stringify(cartItems));
   }, [cartItems]);
 
@@ -265,11 +269,11 @@ const Products = () => {
         Nuestros Productos
       </Heading>
       <Grid
-        templateColumns='repeat(auto-fit, minmax(200px, 1fr))'
+        templateColumns='repeat(auto-fit, minmax(300px, 1fr))'
         justifyContent='center'
         gap='6'
         p='2'
-        maxW='1200px'
+        maxW='1500px'
         mx='auto'
       >
         {products.map((item) => {
@@ -280,10 +284,11 @@ const Products = () => {
               key={item._id}
               bg='gray.100'
               p='4'
+              minW='300px'
               borderRadius='md'
               style={{
-                pointerEvents: item.available ? 'auto' : 'none',
-                opacity: item.available ? 1 : 0.5
+                opacity: item.available ? 1 : 0.5,
+                cursor: item.available ? 'default' : 'not-allowed'
               }}
               align='center'
               justify='space-between'
@@ -296,23 +301,36 @@ const Products = () => {
               >
                 {item.nameProduct}
               </Heading>
-              <Image src={item.productImage} boxSize='100px' />
+              <Flex width='250px' height='250px'>
+                <Image src={item.productImage} w='100%' objectFit='contain' />
+              </Flex>
+
               <Flex gap='5' justify='center' align='end' width='100%' mt='5'>
                 <Text>{item.price.toFixed(2) + ' €'}</Text>
                 <Text>{'Stock: ' + item.stock}</Text>
               </Flex>
               <Text>{getAverageRating(item.ratings)} 🌟</Text>
               {user?._id && (
-                <>
-                  <Rating
-                    rating={ratings[item._id] || 0}
-                    onChange={(value) => handleRatingChange(item._id, value)}
-                  />
+                <Flex w='100%' align='center'>
+                  <Box
+                    pointerEvents={item.available ? 'auto' : 'none'}
+                    cursor={item.available ? 'pointer' : 'not-allowed'}
+                  >
+                    <Rating
+                      rating={ratings[item._id] || 0}
+                      onChange={(value) => handleRatingChange(item._id, value)}
+                    />
+                  </Box>
+
                   <Spacer />
-                  <Button onClick={() => addToCart(item)}>
+                  <Button
+                    pointerEvents={item.available ? 'auto' : 'none'}
+                    cursor={item.available ? 'pointer' : 'not-allowed'}
+                    onClick={() => addToCart(item)}
+                  >
                     <AddToCartIcon />
                   </Button>
-                </>
+                </Flex>
               )}
             </Flex>
           );
