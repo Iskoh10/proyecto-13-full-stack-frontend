@@ -3,7 +3,7 @@ main.products {
   flex-direction: column;
   min-height: 100svh;
   width: 100%;
-  background-color: rgb(200, 103, 230);
+  background-color: rgb(230, 185, 103);
 }
 
 .product-card {

@@ -92,6 +92,58 @@ const Workshops = () => {
     (selectedWorkshop.likes.some((u) => u._id === user._id) ||
       selectedWorkshop.dislikes.some((u) => u._id === user._id));
 
+  const handleAttend = async (workshopId, action) => {
+    if (!user) return;
+
+    try {
+      const res = await fetch(
+        `http://localhost:3000/api/v1/workshops/${workshopId}`,
+        {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify({ action })
+        }
+      );
+
+      if (!res.ok) throw new Error('Error en la petición de asistencia.');
+
+      const data = await res.json();
+
+      setWorkshops((prev) =>
+        prev.map((workshop) => (workshop._id === data._id ? data : workshop))
+      );
+
+      if (selectedWorkshop?._id === data._id) {
+        setSelectedWorkshop(data);
+      }
+
+      if (action === 'attend') {
+        showToast({
+          title: 'Info',
+          description: 'Te confirmaremos tu asistencia!',
+          status: 'info'
+        });
+      } else if (action === 'unattend') {
+        showToast({
+          description: 'Te quitaste del taller correctamente.',
+          status: 'success'
+        });
+      }
+    } catch (error) {
+      showToast({
+        title: 'Error',
+        description: 'No te pudiste apuntar, inténtalo de nuevo',
+        status: 'error'
+      });
+    }
+  };
+
+  const isAttending =
+    selectedWorkshop?.attendees?.some(
+      (attendee) => attendee._id === user?._id
+    ) || false;
+
   const handleAddComment = async () => {
     const text = commentRef.current.value;
     if (!text.trim()) {
@@ -157,7 +209,7 @@ const Workshops = () => {
         Nuestros Talleres
       </Heading>
       <Flex wrap='wrap' gap={4}>
-        {workshops.map((workshop) => {
+        {workshops?.map((workshop) => {
           const eventDate = new Date(workshop.eventDate);
           const day = eventDate.toLocaleDateString('es-Es');
           const time = eventDate.toLocaleTimeString('es-Es', {
@@ -196,6 +248,9 @@ const Workshops = () => {
               <Text textAlign='center' mb={5}>
                 {workshop.description}
               </Text>
+              <Flex w='350px' h='350px' align='center' borderRadius='10px'>
+                <Image src={workshop.image} w='100%' objectFit='contain' />
+              </Flex>
               <Flex direction='column'>
                 <Flex align='flex-start' width='100%'>
                   <Text>
@@ -213,12 +268,22 @@ const Workshops = () => {
       {selectedWorkshop && (
         <CustomModal isOpen={isOpen} onClose={onClose}>
           <Flex direction='column' align='center' mt={5}>
-            <Heading textAlign='center'>{selectedWorkshop.title}</Heading>
+            <Heading textAlign='center' mb={4}>
+              {selectedWorkshop.title}
+            </Heading>
             <Text>{selectedWorkshop.description}</Text>
+            <Flex align='center' w='350px' h='350px'>
+              <Image
+                src={selectedWorkshop.image}
+                w='100%'
+                objectFit='contain'
+              />
+            </Flex>
             {user ? (
               <Flex direction='column' mt={5}>
                 <Text width='70%'>
-                  Asistentes: [ {selectedWorkshop.attendees} ]
+                  Asistentes: [{' '}
+                  {selectedWorkshop.attendees.map((a) => a.name).join(', ')} ]
                 </Text>
                 <Text width='70%'>
                   Me gusta: [ {selectedWorkshop.likes.length} 💚 ]
@@ -242,30 +307,22 @@ const Workshops = () => {
                     💔 No me gusta
                   </Button>
                 </Flex>
-              </Flex>
-            ) : null}
-            <Flex width='50%' justify='center' textAlign='center' mt={4}>
-              {selectedWorkshop.fileUrl && (
-                <Flex direction='column' justify='center' gap={5}>
-                  <Image
-                    boxSize='350'
-                    src='#'
-                    alt='portada taller'
-                    border='1px solid'
-                  ></Image>
+                <Flex mt={5}>
                   <Button
-                    as='a'
-                    href={selectedWorkshop.fileUrl}
-                    download
-                    target='_blank'
-                    rel='noopener noreferrer'
-                    colorScheme='teal'
+                    colorScheme={isAttending ? 'red' : 'blue'}
+                    onClick={() =>
+                      handleAttend(
+                        selectedWorkshop._id,
+                        isAttending ? 'unattend' : 'attend'
+                      )
+                    }
+                    disabled={!isAttending && selectedWorkshop.capacity <= 0}
                   >
-                    Descargar PDF
+                    {isAttending ? '🙅‍♂️ No Asistir' : '🙋‍♂️ Asistir'}
                   </Button>
                 </Flex>
-              )}
-            </Flex>
+              </Flex>
+            ) : null}
             {user ? (
               <Box
                 border='1px solid'
@@ -320,5 +377,3 @@ const Workshops = () => {
 };
 
 export default Workshops;
-
-//! MEJORAR LA CARD, revisar el detalle de las cartas

@@ -327,6 +327,7 @@ const Products = () => {
                     pointerEvents={item.available ? 'auto' : 'none'}
                     cursor={item.available ? 'pointer' : 'not-allowed'}
                     onClick={() => addToCart(item)}
+                    isDisabled={item.stock <= 0 || !item.available}
                   >
                     <AddToCartIcon />
                   </Button>

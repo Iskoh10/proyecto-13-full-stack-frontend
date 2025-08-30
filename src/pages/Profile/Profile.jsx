@@ -232,7 +232,7 @@ const Profile = () => {
             </Box>
           </Flex>
         </Box>
-        <Box flex='1' ml={6} bg='green.100' p={4} h='100svh'>
+        <Box flex='1' ml={6} bg='rgb(230, 185, 103)' p={4} h='100svh'>
           <Heading pb={4}>{`Bienvenido ${state.name}`}</Heading>
 
           {activeTab === 'perfil' && (

@@ -236,6 +236,7 @@ const OrdersDash = () => {
                       <MenuItem
                         key={status}
                         onClick={(e) => {
+                          e.stopPropagation();
                           handleChangeStatus(order._id, status);
                         }}
                       >

@@ -356,7 +356,8 @@ const WorkshopsDash = () => {
                 colorScheme='red'
                 size='xs'
                 isDisabled={!workshop.available}
-                onClick={() => {
+                onClick={(e) => {
+                  e.stopPropagation();
                   setSelectedWorkshop(workshop);
                   onOpen();
                 }}

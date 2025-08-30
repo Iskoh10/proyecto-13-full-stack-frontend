@@ -7,6 +7,7 @@ const Ticket = ({ order, isModal = false }) => {
   return (
     <Box
       mt={8}
+      mb={10}
       p={5}
       border='1px solid rgba(0,0,0,0.2)'
       borderRadius='10px'

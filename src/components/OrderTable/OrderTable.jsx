@@ -31,7 +31,10 @@ const OrderTable = ({ items }) => {
                 €{item.product ? item.product.price : 0}
               </Td>
               <Td textAlign='center'>
-                €{item.product ? item.product.price * item.quantity : 0}
+                €
+                {item.product
+                  ? (item.product.price * item.quantity).toFixed(2)
+                  : 0}
               </Td>
             </Tr>
           ))}

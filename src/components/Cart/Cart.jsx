@@ -94,7 +94,8 @@ const Cart = ({
   return (
     <Box position='relative' display='inline-block'>
       <Button
-        variant='outline'
+        h='60px'
+        variant='solid'
         leftIcon={<CartIcon />}
         aria-label='Cart'
         onClick={() => setIsOpen(!isOpen)}

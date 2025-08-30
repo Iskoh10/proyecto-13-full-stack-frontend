@@ -161,12 +161,17 @@ const Blog = () => {
       <Heading align='center' py='4'>
         Nuestro Blog
       </Heading>
-      <Flex wrap='wrap' gap={4} justify='center'>
+
+      {console.log(posts)}
+
+      <Flex wrap='wrap' gap={4} justify='center' paddingBottom={10}>
         {posts.map((post) => (
           <Flex
             key={post._id}
             width='400px'
             direction='column'
+            align='center'
+            justify='space-between'
             ml={5}
             mt={5}
             p={2}
@@ -197,7 +202,12 @@ const Blog = () => {
               {post.title}
             </Heading>
             <Text textAlign='center'>{post.summary}</Text>
-            <Text textAlign='right'>{formatDate(post.createdAt, true)}</Text>
+            <Flex align='center' w='350px' h='350px'>
+              <Image src={post.image[0]} boxSize='100%' objectFit='cover' />
+            </Flex>
+            <Flex w='100%' justify='flex-end'>
+              <Text>{formatDate(post.createdAt, true)}</Text>
+            </Flex>
           </Flex>
         ))}
       </Flex>
@@ -209,12 +219,23 @@ const Blog = () => {
             </Heading>
             <Text>Título clave: ➡️ {selectedPost.slug}</Text>
             <Flex mt={5} direction='column' gap={2}>
-              <Text textAlign='center'>{selectedPost.paragraphs[0]}</Text>
-              <Image mx='auto' boxSize='400px' src={selectedPost.image[0]} />
-              <Text textAlign='center'>{selectedPost.paragraphs[1]}</Text>
-              <Image mx='auto' boxSize='300px' src={selectedPost.image[1]} />
-              <Text textAlign='center'>{selectedPost.paragraphs[2]}</Text>
-              <Image mx='auto' boxSize='200px' src={selectedPost.image[2]} />
+              {selectedPost.image &&
+                selectedPost.paragraphs &&
+                selectedPost.image.map((imgSrc, index) => (
+                  <>
+                    {selectedPost.paragraphs[index] && (
+                      <Text key={`p-${index}`} textAlign='center'>
+                        {selectedPost.paragraphs[index]}
+                      </Text>
+                    )}
+                    <Image
+                      key={`img-${index}`}
+                      mx='auto'
+                      boxSize={`${400 - index * 100}px`}
+                      src={imgSrc}
+                    />
+                  </>
+                ))}
             </Flex>
           </Flex>
           {user ? (
