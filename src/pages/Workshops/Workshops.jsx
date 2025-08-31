@@ -1,20 +1,13 @@
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Image,
-  Input,
-  Spinner,
-  Stack,
-  Text,
-  useDisclosure
-} from '@chakra-ui/react';
+import { Flex, Heading, Spinner, Stack, useDisclosure } from '@chakra-ui/react';
 import './Workshops.css';
 import { useEffect, useRef, useState } from 'react';
 import useCustomToast from '../../hooks/useCustomToast';
-import CustomModal from '../../components/CustomModal/CustomModal';
 import { useUser } from '../../Providers/UserContext';
+import CardWorkshop from '../../components/CardWorkshop/CardWorkshop';
+import DetailsWorkshopModal from '../../components/DetailsWorkshopModal/DetailsWorkshopModal';
+import useVote from '../../hooks/useVote';
+import useAttend from '../../hooks/useAttend';
+import useAddComment from '../../hooks/useAddComment';
 
 const Workshops = () => {
   const [selectedWorkshop, setSelectedWorkshop] = useState(null);
@@ -25,6 +18,28 @@ const Workshops = () => {
   const commentRef = useRef();
   const [loadingComment, setLoadingComment] = useState(false);
   const { user } = useUser();
+  const { handleVote, hasVote } = useVote({
+    setWorkshops,
+    selectedWorkshop,
+    setSelectedWorkshop,
+    showToast,
+    user
+  });
+  const { handleAttend, isAttending } = useAttend({
+    user,
+    setWorkshops,
+    selectedWorkshop,
+    setSelectedWorkshop,
+    showToast
+  });
+  const { handleAddComment } = useAddComment({
+    commentRef,
+    setLoadingComment,
+    selectedWorkshop,
+    setSelectedWorkshop,
+    setWorkshops,
+    showToast
+  });
 
   useEffect(() => {
     setLoading(true);
@@ -50,152 +65,6 @@ const Workshops = () => {
     fetchWorkshop();
   }, []);
 
-  const handleVote = async (workshopId, action) => {
-    if (!user) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/workshops/${workshopId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action })
-        }
-      );
-
-      if (!res.ok) throw new Error('Error al votar');
-
-      const updatedWorkshop = await res.json();
-
-      setWorkshops((prev) =>
-        prev.map((workshop) =>
-          workshop._id === updatedWorkshop._id ? updatedWorkshop : workshop
-        )
-      );
-
-      if (selectedWorkshop?._id === updatedWorkshop._id) {
-        setSelectedWorkshop(updatedWorkshop);
-      }
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo registrar tu voto',
-        status: 'error'
-      });
-    }
-  };
-
-  const hasVote =
-    selectedWorkshop &&
-    user &&
-    (selectedWorkshop.likes.some((u) => u._id === user._id) ||
-      selectedWorkshop.dislikes.some((u) => u._id === user._id));
-
-  const handleAttend = async (workshopId, action) => {
-    if (!user) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/workshops/${workshopId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ action })
-        }
-      );
-
-      if (!res.ok) throw new Error('Error en la petición de asistencia.');
-
-      const data = await res.json();
-
-      setWorkshops((prev) =>
-        prev.map((workshop) => (workshop._id === data._id ? data : workshop))
-      );
-
-      if (selectedWorkshop?._id === data._id) {
-        setSelectedWorkshop(data);
-      }
-
-      if (action === 'attend') {
-        showToast({
-          title: 'Info',
-          description: 'Te confirmaremos tu asistencia!',
-          status: 'info'
-        });
-      } else if (action === 'unattend') {
-        showToast({
-          description: 'Te quitaste del taller correctamente.',
-          status: 'success'
-        });
-      }
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No te pudiste apuntar, inténtalo de nuevo',
-        status: 'error'
-      });
-    }
-  };
-
-  const isAttending =
-    selectedWorkshop?.attendees?.some(
-      (attendee) => attendee._id === user?._id
-    ) || false;
-
-  const handleAddComment = async () => {
-    const text = commentRef.current.value;
-    if (!text.trim()) {
-      commentRef.current.value = '';
-      return;
-    }
-
-    setLoadingComment(true);
-    try {
-      const res = await fetch('http://localhost:3000/api/v1/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          text,
-          target: 'Workshop',
-          eventId: selectedWorkshop._id
-        })
-      });
-
-      if (!res.ok) throw new Error('Error al crear el comentario');
-
-      const createdComment = await res.json();
-      const commentWithUser = { ...createdComment, user };
-
-      setSelectedWorkshop((prev) => ({
-        ...prev,
-        comments: [...prev.comments, commentWithUser]
-      }));
-
-      setWorkshops((prev) =>
-        prev.map((workshop) =>
-          workshop._id === selectedWorkshop._id
-            ? { ...workshop, comments: [...workshop.comments, createdComment] }
-            : workshop
-        )
-      );
-
-      commentRef.current.value = '';
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'Error al comentar',
-        status: 'error'
-      });
-    } finally {
-      setLoadingComment(false);
-    }
-  };
-
   if (loading)
     return (
       <Stack align='center' justify='center' height='100svh'>
@@ -208,7 +77,7 @@ const Workshops = () => {
       <Heading align='center' py='4'>
         Nuestros Talleres
       </Heading>
-      <Flex wrap='wrap' gap={4}>
+      <Flex wrap='wrap' justify='center' gap={4} pb={10}>
         {workshops?.map((workshop) => {
           const eventDate = new Date(workshop.eventDate);
           const day = eventDate.toLocaleDateString('es-Es');
@@ -217,160 +86,31 @@ const Workshops = () => {
             minute: '2-digit'
           });
           return (
-            <Flex
+            <CardWorkshop
               key={workshop._id}
-              direction='column'
-              p={4}
-              ml={5}
-              mt={5}
-              width='400px'
-              border='1px solid'
-              borderRadius='10px'
-              borderColor='gray.400'
-              bg='rgba(255, 255, 255, 0.1)'
-              backdropFilter='blur(10px)'
-              boxShadow='0 4px 30px rgba(0, 0, 0, 0.1)'
-              transition='all 0.3s ease-in-out'
-              _hover={{
-                backdropFilter: 'blur(15px)',
-                border: '1px solid rgba(255, 255, 255, 0.4)',
-                transform: 'scale(1.02)',
-                boxShadow: '0 6px 40px rgba(0, 0, 0, 0.15)'
-              }}
-              cursor='pointer'
-              onClick={() => {
-                setSelectedWorkshop(workshop), onOpen();
-              }}
-            >
-              <Heading size='md' textAlign='center'>
-                {workshop.title}
-              </Heading>
-              <Text textAlign='center' mb={5}>
-                {workshop.description}
-              </Text>
-              <Flex w='350px' h='350px' align='center' borderRadius='10px'>
-                <Image src={workshop.image} w='100%' objectFit='contain' />
-              </Flex>
-              <Flex direction='column'>
-                <Flex align='flex-start' width='100%'>
-                  <Text>
-                    Fecha: {day} a las {time}
-                  </Text>
-                </Flex>
-                <Flex width='100%' justify='flex-end'>
-                  <Text>Plazas: {workshop.capacity}</Text>
-                </Flex>
-              </Flex>
-            </Flex>
+              workshop={workshop}
+              setSelectedWorkshop={setSelectedWorkshop}
+              onOpen={onOpen}
+              day={day}
+              time={time}
+            />
           );
         })}
       </Flex>
       {selectedWorkshop && (
-        <CustomModal isOpen={isOpen} onClose={onClose}>
-          <Flex direction='column' align='center' mt={5}>
-            <Heading textAlign='center' mb={4}>
-              {selectedWorkshop.title}
-            </Heading>
-            <Text>{selectedWorkshop.description}</Text>
-            <Flex align='center' w='350px' h='350px'>
-              <Image
-                src={selectedWorkshop.image}
-                w='100%'
-                objectFit='contain'
-              />
-            </Flex>
-            {user ? (
-              <Flex direction='column' mt={5}>
-                <Text width='70%'>
-                  Asistentes: [{' '}
-                  {selectedWorkshop.attendees.map((a) => a.name).join(', ')} ]
-                </Text>
-                <Text width='70%'>
-                  Me gusta: [ {selectedWorkshop.likes.length} 💚 ]
-                </Text>
-                <Text width='70%'>
-                  No me gusta: [ {selectedWorkshop.dislikes.length} 💔 ]
-                </Text>
-                <Flex mt={3} justify='center' gap={4}>
-                  <Button
-                    bg='green.300'
-                    onClick={() => handleVote(selectedWorkshop._id, 'like')}
-                    disabled={hasVote}
-                  >
-                    💚 Me gusta
-                  </Button>
-                  <Button
-                    bg='red.300'
-                    onClick={() => handleVote(selectedWorkshop._id, 'dislike')}
-                    disabled={hasVote}
-                  >
-                    💔 No me gusta
-                  </Button>
-                </Flex>
-                <Flex mt={5}>
-                  <Button
-                    colorScheme={isAttending ? 'red' : 'blue'}
-                    onClick={() =>
-                      handleAttend(
-                        selectedWorkshop._id,
-                        isAttending ? 'unattend' : 'attend'
-                      )
-                    }
-                    disabled={!isAttending && selectedWorkshop.capacity <= 0}
-                  >
-                    {isAttending ? '🙅‍♂️ No Asistir' : '🙋‍♂️ Asistir'}
-                  </Button>
-                </Flex>
-              </Flex>
-            ) : null}
-            {user ? (
-              <Box
-                border='1px solid'
-                borderColor='gray.400'
-                borderRadius='10px'
-                p={5}
-                mt={3}
-              >
-                <Text width='70%' fontSize='2rem'>
-                  Comentarios
-                </Text>
-                <Stack mt={5} width='100%'>
-                  {selectedWorkshop.comments.map((comment) => (
-                    <Flex
-                      key={comment._id}
-                      align='center'
-                      justify='space-between'
-                      p={2}
-                      borderBottom='1px solid gray'
-                    >
-                      <Text fontSize='1rem'>{comment.text}</Text>
-                      <Text color='gray.400'>{comment.user.name}</Text>
-                    </Flex>
-                  ))}
-
-                  <Flex mt={3} gap={2}>
-                    <Input
-                      type='text'
-                      placeholder='Escribe un comentario...'
-                      ref={commentRef}
-                    />
-                    <Button
-                      colorScheme='red'
-                      onClick={handleAddComment}
-                      disabled={loadingComment}
-                    >
-                      {loadingComment ? 'Enviando...' : 'Comentar'}
-                    </Button>
-                  </Flex>
-                </Stack>
-              </Box>
-            ) : (
-              <Text mt={3} color='gray.500' textAlign='center'>
-                Inicia sesión para ver likes y comentarios.
-              </Text>
-            )}
-          </Flex>
-        </CustomModal>
+        <DetailsWorkshopModal
+          isOpen={isOpen}
+          onClose={onClose}
+          selectedWorkshop={selectedWorkshop}
+          user={user}
+          handleVote={handleVote}
+          hasVote={hasVote}
+          isAttending={isAttending}
+          handleAttend={handleAttend}
+          commentRef={commentRef}
+          handleAddComment={handleAddComment}
+          loadingComment={loadingComment}
+        />
       )}
     </main>
   );

@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
 import './Blog.css';
 import {
   Box,
@@ -16,6 +16,7 @@ import useCustomToast from '../../hooks/useCustomToast';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import formatDate from '../../utils/formatDate';
 import { useUser } from '../../Providers/UserContext';
+import useVote from '../../hooks/useVote';
 
 const Blog = () => {
   const [posts, setPosts] = useState([]);
@@ -56,46 +57,22 @@ const Blog = () => {
     fetchBlogs();
   }, []);
 
-  const handleVote = async (blogId, action) => {
-    if (!user) return;
+  const { handleVote, hasVote } = useVote({
+    setItems: setPosts,
+    selectedItem: selectedPost,
+    setSelectedItem: setSelectedPost,
+    showToast,
+    user
+  });
 
-    try {
-      const res = await fetch(`http://localhost:3000/api/v1/blogs/${blogId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ action })
-      });
-
-      if (!res.ok) throw new Error('Error al votar');
-
-      const updatedPost = await res.json();
-
-      setPosts((prev) =>
-        prev.map((post) => (post._id === updatedPost._id ? updatedPost : post))
-      );
-
-      if (selectedPost?._id === updatedPost._id) {
-        setSelectedPost((prev) => ({
-          ...updatedPost,
-          paragraphs: prev.paragraphs,
-          image: prev.image
-        }));
-      }
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo registrar tu voto',
-        status: 'error'
-      });
-    }
-  };
-
-  const hasVote =
-    selectedPost &&
-    user &&
-    (selectedPost.likes.some((u) => u._id === user._id) ||
-      selectedPost.dislikes.some((u) => u._id === user._id));
+  //  const { handleAddComment } = useAddComment({
+  //   commentRef,
+  //   setLoadingComment,
+  //   selectedWorkshop,
+  //   setSelectedWorkshop,
+  //   setWorkshops,
+  //   showToast
+  // });
 
   const handleAddComment = async () => {
     const text = commentRef.current.value;
@@ -222,7 +199,7 @@ const Blog = () => {
               {selectedPost.image &&
                 selectedPost.paragraphs &&
                 selectedPost.image.map((imgSrc, index) => (
-                  <>
+                  <Fragment key={index}>
                     {selectedPost.paragraphs[index] && (
                       <Text key={`p-${index}`} textAlign='center'>
                         {selectedPost.paragraphs[index]}
@@ -234,7 +211,7 @@ const Blog = () => {
                       boxSize={`${400 - index * 100}px`}
                       src={imgSrc}
                     />
-                  </>
+                  </Fragment>
                 ))}
             </Flex>
           </Flex>
@@ -245,14 +222,14 @@ const Blog = () => {
               <Flex mt={3} justify='center' gap={4}>
                 <Button
                   bg='green.300'
-                  onClick={() => handleVote(selectedPost._id, 'like')}
+                  onClick={() => handleVote('blogs', 'like')}
                   disabled={hasVote}
                 >
                   💚 Me gusta
                 </Button>
                 <Button
                   bg='red.300'
-                  onClick={() => handleVote(selectedPost._id, 'dislike')}
+                  onClick={() => handleVote('blogs', 'dislike')}
                   disabled={hasVote}
                 >
                   💔 No me gusta
@@ -309,3 +286,5 @@ const Blog = () => {
 };
 
 export default Blog;
+
+//* Unificar el customHooks de useAddComment, abstraer componentes

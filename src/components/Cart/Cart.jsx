@@ -20,6 +20,10 @@ import {
 import { useState } from 'react';
 import useCustomToast from '../../hooks/useCustomToast';
 import { loadStripe } from '@stripe/stripe-js';
+import deleteProductCart from '../../utils/cartUtils/deleteProductCart';
+import decreaseQty from '../../utils/cartUtils/decreaseQty';
+import increaseQty from '../../utils/cartUtils/increaseQty';
+import clearCart from '../../utils/cartUtils/clearCart';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLIC_KEY);
 
@@ -143,7 +147,7 @@ const Cart = ({
                     <IconButton
                       icon={<RemoveFromCartIcon boxSize={4} />}
                       colorScheme='red'
-                      onClick={() => onDelete(item._id)}
+                      onClick={() => onDelete(item, deleteProductCart)}
                       size='xs'
                       aria-label='Eliminar del carrito'
                     />
@@ -162,14 +166,14 @@ const Cart = ({
                       <Flex gap={2}>
                         <Button
                           size='xs'
-                          onClick={() => onDecreaseQty(item._id)}
+                          onClick={() => onDecreaseQty(item, decreaseQty)}
                           isDisabled={item.qty === 0}
                         >
                           -
                         </Button>
                         <Button
                           size='xs'
-                          onClick={() => onIncreaseQty(item._id)}
+                          onClick={() => onIncreaseQty(item, increaseQty)}
                           isDisabled={item.qty >= item.stock}
                         >
                           +
@@ -218,7 +222,7 @@ const Cart = ({
                   <Button
                     leftIcon={<ClearCartIcon />}
                     colorScheme='red'
-                    onClick={onClear}
+                    onClick={() => onClear(clearCart)}
                     w='full'
                     isDisabled={loading}
                   >

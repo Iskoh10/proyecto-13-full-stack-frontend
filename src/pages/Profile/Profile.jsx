@@ -1,23 +1,14 @@
 import './Profile.css';
-import {
-  Box,
-  Button,
-  Flex,
-  Heading,
-  Text,
-  useDisclosure
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, useDisclosure } from '@chakra-ui/react';
 import { useUser } from '../../Providers/UserContext';
 import { useEffect, useReducer, useState } from 'react';
-import EditFieldModal from '../../components/EditFieldModal/EditFieldModal';
 import userReducer from '../../reducers/userReducer';
-import profileFields from '../../data/profileFields';
-import EditableField from '../../components/EditableField/EditableField';
-import formatDate from '../../utils/formatDate';
-import Ticket from '../../components/Ticket/Ticket';
-import CustomModal from '../../components/CustomModal/CustomModal';
 import { useNavigate } from 'react-router-dom';
 import useCustomToast from '../../hooks/useCustomToast';
+import ProfileAside from '../../components/ProfileAside/ProfileAside';
+import UpdateUserForm from '../../components/UpdateUserForm/UpdateUserForm';
+import UserOrderHistory from '../../components/UserOrderHistory/UserOrderHistory';
+import DeleteAccountModal from '../../components/DeleteAccountModal/DeleteAccountModal';
 
 const Profile = () => {
   const { user, setUser } = useUser();
@@ -187,174 +178,49 @@ const Profile = () => {
   return (
     <main className='profile flex-container'>
       <Flex align='flex-start' direction='row' w='100%'>
-        <Box
-          as='aside'
-          w='250px'
-          h='100svh'
-          p={4}
-          bg='gray.100'
-          border='1px solid'
-          borderColor='gray.300'
-        >
-          <Flex
-            direction='column'
-            border='1px solid'
-            borderColor='gray.300'
-            mb={5}
-          >
-            <Text as='p'>{state.name + ' ' + state.lastName}</Text>
-            <Text as='p'>{state.email}</Text>
-          </Flex>
-          <Flex direction='column'>
-            <Box
-              as='button'
-              w='100%'
-              textAlign='left'
-              mb={2}
-              p={2}
-              bg={activeTab === 'perfil' ? 'gray.400' : 'transparent'}
-              _hover={{ bg: 'gray.500' }}
-              onClick={() => setActiveTab('perfil')}
-            >
-              Perfil
-            </Box>
-            <Box
-              as='button'
-              w='100%'
-              textAlign='left'
-              mb={2}
-              p={2}
-              bg={activeTab === 'historial' ? 'gray.400' : 'transparent'}
-              _hover={{ bg: 'gray.500' }}
-              onClick={() => setActiveTab('historial')}
-            >
-              Historial Pedidos
-            </Box>
-          </Flex>
-        </Box>
-        <Box flex='1' ml={6} bg='rgb(230, 185, 103)' p={4} h='100svh'>
+        <ProfileAside
+          state={state}
+          activeTab={activeTab}
+          setActiveTab={setActiveTab}
+        />
+        <Box flex='1' ml={6} bg='isc.accent' p={4} h='100svh'>
           <Heading pb={4}>{`Bienvenido ${state.name}`}</Heading>
 
           {activeTab === 'perfil' && (
             <Flex direction='column' align='center' gap={5}>
               <h2>Actualizar datos personales</h2>
-
-              <Flex
-                as='form'
-                w='30%'
-                direction='column'
-                align='center'
-                p={5}
-                gap={5}
-                bg='gray.200'
-                border='1px solid'
-                borderColor='gray.300'
-                borderRadius='10px'
-              >
-                {profileFields.map(({ key, label }) => (
-                  <EditableField
-                    key={key}
-                    label={label}
-                    value={state[key]}
-                    onClick={() => handleFieldClick(key, label)}
-                  />
-                ))}
-
-                {fieldToEdit && (
-                  <EditFieldModal
-                    field={fieldToEdit.label}
-                    fieldValue={state[fieldToEdit.key]}
-                    isOpen={isOpen}
-                    onClose={onClose}
-                    onSubmitField={(value) =>
-                      handleUpdate(fieldToEdit.key, value)
-                    }
-                  />
-                )}
-              </Flex>
+              <UpdateUserForm
+                state={state}
+                handleFieldClick={handleFieldClick}
+                handleUpdate={handleUpdate}
+                fieldToEdit={fieldToEdit}
+                isOpen={isOpen}
+                onClose={onClose}
+              />
               {user?.role === 'admin' ? null : (
                 <Button colorScheme='red' onClick={onDeleteOpen}>
                   Eliminar cuenta
                 </Button>
               )}
-
-              <CustomModal isOpen={isDeleteOpen} onClose={onDeleteClose}>
-                <Flex direction='column' textAlign='center' mt={5}>
-                  <Text>¿Estás seguro de que quieres eliminar tu cuenta?</Text>
-                  <Flex justify='center'>
-                    <Button variant='ghost' mr={3} onClick={onDeleteClose}>
-                      Cancelar
-                    </Button>
-                    <Button
-                      colorScheme='red'
-                      isLoading={isDeleting}
-                      onClick={handleDeleteAccount}
-                    >
-                      Eliminar
-                    </Button>
-                  </Flex>
-                </Flex>
-              </CustomModal>
+              <DeleteAccountModal
+                isDeleteOpen={isDeleteOpen}
+                onDeleteClose={onDeleteClose}
+                isDeleting={isDeleting}
+                handleDeleteAccount={handleDeleteAccount}
+              />
             </Flex>
           )}
           {activeTab === 'historial' && (
             <Flex direction='column' align='center' gap={5}>
               <h2>Pedidos Realizados</h2>
-              <Flex height='400px' overflowY='auto' direction='column' gap={2}>
-                {orders
-                  .slice()
-                  .reverse()
-                  .map((order) => (
-                    <Flex
-                      key={order._id}
-                      p={2}
-                      gap={4}
-                      bg={
-                        order.status === 'pending'
-                          ? 'blue.100'
-                          : order.status === 'delivered'
-                          ? 'green.200'
-                          : order.status === 'cancelled'
-                          ? 'red.200'
-                          : 'blue.100'
-                      }
-                      border='1px solid'
-                      borderColor='gray.400'
-                      borderRadius='10px'
-                      cursor='pointer'
-                      _hover={{
-                        bg:
-                          order.status === 'pending'
-                            ? 'blue.200'
-                            : order.status === 'delivered'
-                            ? 'green.300'
-                            : order.status === 'cancelled'
-                            ? 'red.300'
-                            : 'blue.200',
-                        transition: 'background-color 0.3s'
-                      }}
-                      onClick={() => {
-                        setSelectedOrder(order);
-                        onOpen();
-                      }}
-                    >
-                      <Text>{formatDate(order.deliveryDate, true)}</Text>
-                      <Text>Total: €{order.totalPrice.toFixed(2)}</Text>
-                      <Text>{order.items.length} productos</Text>
-                    </Flex>
-                  ))}
-                <CustomModal isOpen={isOpen} onClose={onClose}>
-                  <Box id='ticketToPrint'>
-                    {selectedOrder && (
-                      <Ticket order={selectedOrder} isModal={true} />
-                    )}
-                  </Box>
-
-                  <Button onClick={() => window.print()} mt={2}>
-                    Descargar PDF
-                  </Button>
-                </CustomModal>
-              </Flex>
+              <UserOrderHistory
+                orders={orders}
+                selectedOrder={selectedOrder}
+                setSelectedOrder={setSelectedOrder}
+                onOpen={onOpen}
+                isOpen={isOpen}
+                onClose={onClose}
+              />
             </Flex>
           )}
         </Box>

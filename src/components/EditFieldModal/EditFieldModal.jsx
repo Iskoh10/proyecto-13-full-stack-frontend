@@ -131,44 +131,4 @@ const EditFieldModal = ({
   );
 };
 
-// <ChakraModal isOpen={isOpen} onClose={onClose} size='lg'>
-//   <ModalOverlay />
-//   <ModalContent>
-//     <ModalHeader>Modificar {field}</ModalHeader>
-//     <ModalCloseButton />
-
-//     <form onSubmit={handleSubmit(onSubmit)}>
-//       <ModalBody>
-//         <VStack spacing='4' align='stretch'>
-//           <FormControl isInvalid={errors.value}>
-//             <FormLabel>{field}</FormLabel>
-//             <Input
-//               type={
-//                 field.toLowerCase() === 'contraseña' ? 'password' : 'text'
-//               }
-//               {...register('value', {
-//                 required: `${field} es obligatorio`,
-//                 minLength:
-//                   field.toLowerCase() === 'contraseña'
-//                     ? { value: 0, message: 'Mínimo 6 caracteres' }
-//                     : undefined
-//               })}
-//             />
-//             <FormErrorMessage>{errors.value?.message}</FormErrorMessage>
-//           </FormControl>
-//         </VStack>
-//       </ModalBody>
-
-//       <ModalFooter>
-//         <Button variant='ghost' mr='3' onClick={onClose}>
-//           Cancelar
-//         </Button>
-//         <Button type='submit' colorScheme='teal'>
-//           Guardar
-//         </Button>
-//       </ModalFooter>
-//     </form>
-//   </ModalContent>
-// </ChakraModal>
-
 export default EditFieldModal;
