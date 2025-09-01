@@ -11,7 +11,7 @@ const DeleteAccountModal = ({
     <CustomModal isOpen={isDeleteOpen} onClose={onDeleteClose}>
       <Flex direction='column' textAlign='center' mt={5}>
         <Text>¿Estás seguro de que quieres eliminar tu cuenta?</Text>
-        <Flex justify='center'>
+        <Flex justify='center' mt={10}>
           <Button variant='ghost' mr={3} onClick={onDeleteClose}>
             Cancelar
           </Button>

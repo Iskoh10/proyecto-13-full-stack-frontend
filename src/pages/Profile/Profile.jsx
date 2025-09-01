@@ -9,6 +9,8 @@ import ProfileAside from '../../components/ProfileAside/ProfileAside';
 import UpdateUserForm from '../../components/UpdateUserForm/UpdateUserForm';
 import UserOrderHistory from '../../components/UserOrderHistory/UserOrderHistory';
 import DeleteAccountModal from '../../components/DeleteAccountModal/DeleteAccountModal';
+import updateUser from '../../utils/updateUser';
+import deleteAccount from '../../utils/deleteAccount';
 
 const Profile = () => {
   const { user, setUser } = useUser();
@@ -103,76 +105,18 @@ const Profile = () => {
     onOpen();
   };
 
-  const handleUpdate = async (field, value) => {
-    dispatch({ type: 'UPDATE_FIELD', field, value });
-
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/users/${user._id}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ [field]: value })
-        }
-      );
-
-      if (!res.ok) throw new Error('No se pudo actualizar');
-
-      const resData = await res.json();
-      const updatedUser = resData.user;
-
-      if (field !== 'password') {
-        dispatch({ type: 'SET_USER', user: updatedUser });
-        setUser(updatedUser);
-      }
-
-      showToast({
-        title: 'Usuario actualizado',
-        description: `${field} actualizado correctamente`,
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error al actualizar usuario',
-        description: error.message || 'Inténtalo de nuevo más tarde.',
-        status: 'error'
-      });
-    }
+  const handleUpdate = (field, value) => {
+    updateUser({ field, value, dispatch, user, setUser, showToast });
   };
 
-  const handleDeleteAccount = async () => {
-    setIsDeleting(true);
-
-    try {
-      const res = await fetch('http://localhost:3000/api/v1/users/deleteUser', {
-        method: 'DELETE',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include'
-      });
-
-      const data = await res.json();
-
-      if (!res.ok)
-        throw new Error(data.message || 'Error al eliminar la cuenta');
-
-      setUser(null);
-      showToast({
-        title: 'Cuenta Eliminada',
-        description: data.message || 'Cuenta eliminada con éxito',
-        status: 'success'
-      });
-      navigate('/login', { replace: true });
-    } catch (error) {
-      showToast({
-        title: 'Error al eliminar la cuenta ',
-        description: error.message || 'Inténtalo de nuevo más tarde',
-        status: 'error'
-      });
-    } finally {
-      setIsDeleting(false);
-      onDeleteClose();
-    }
+  const handleDeleteAccount = () => {
+    deleteAccount({
+      setIsDeleting,
+      setUser,
+      showToast,
+      onDeleteClose,
+      navigate
+    });
   };
 
   return (

@@ -20,12 +20,14 @@ import { useDashboard } from '../../Providers/DashboardContext';
 import { MdSchool } from 'react-icons/md';
 import { useRef, useState } from 'react';
 import Switcher from '../../components/Switcher/Switcher';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import formatDate from '../../utils/formatDate';
 import useCustomToast from '../../hooks/useCustomToast';
 import { useForm } from 'react-hook-form';
 import { useUser } from '../../Providers/UserContext';
+import DeleteButton from '../../components/DeleteButton/DeleteButton';
+import InfoCard from '../../components/InfoCard/InfoCard';
 
 const WorkshopsDash = () => {
   const {
@@ -218,25 +220,14 @@ const WorkshopsDash = () => {
   return (
     <section className='main-dashboard'>
       <HeadingDash>Talleres</HeadingDash>
-      {console.log(workshops)}
-
       <Flex gap={10} align='center' mb={10}>
-        <Flex
-          h='10svh'
-          bg='white'
-          borderRadius='10px'
-          p={5}
-          align='center'
+        <InfoCard
           w='25%'
-        >
-          <Icon as={MdSchool} boxSize={12} color='blue.500' />
-          <Flex direction='column' ml={5}>
-            <Text fontSize='2rem' color='isc.darkAccent'>
-              {workshops?.length}
-            </Text>
-            <Text>Talleres totales</Text>
-          </Flex>
-        </Flex>
+          icon={MdSchool}
+          count={workshops?.length}
+          label='Talleres totales'
+        />
+
         <Flex
           bg='white'
           w='600px'
@@ -350,17 +341,11 @@ const WorkshopsDash = () => {
                   }
                 />
               </Box>
-              <IconButton
-                aria-label='Eliminar taller'
-                icon={<FaTrash />}
-                colorScheme='red'
-                size='xs'
-                isDisabled={!workshop.available}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setSelectedWorkshop(workshop);
-                  onOpen();
-                }}
+              <DeleteButton
+                item={workshop}
+                setSelectedItem={setSelectedWorkshop}
+                disabledCondition={!workshop.available}
+                onOpen={onOpen}
               />
             </Flex>
           );
@@ -507,3 +492,5 @@ const WorkshopsDash = () => {
 };
 
 export default WorkshopsDash;
+
+//! AÑADIR BOTON TODOS A SearchBox opcional

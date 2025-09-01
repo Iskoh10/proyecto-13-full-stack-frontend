@@ -1,4 +1,4 @@
-const updateProductRating = async (productId, value, userId) => {
+const updateProductRating = async (productId, value) => {
   const res = await fetch(
     `http://localhost:3000/api/v1/products/${productId}`,
     {

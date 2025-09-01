@@ -101,7 +101,6 @@ export const DashboardProvider = ({ children }) => {
       if (!res.ok) throw new Error(`No se pudo eliminar el ${resource}`);
 
       const data = await res.json();
-      console.log(data);
 
       if (setter === setUsers) {
         setter((prev) => ({
@@ -169,7 +168,7 @@ export const DashboardProvider = ({ children }) => {
       if (!res.ok) throw new Error('Error en el filtrado');
 
       const data = await res.json();
-      console.log('Estos son los datos:', data);
+
       setProducts(data);
     } catch (error) {
       showToast({

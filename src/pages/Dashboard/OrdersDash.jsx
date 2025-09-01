@@ -90,8 +90,6 @@ const OrdersDash = () => {
   return (
     <section className='main-dashboard'>
       <HeadingDash>Pedidos</HeadingDash>
-      {console.log(orders.filter?.((order) => !order.customer.isDeleted))}
-
       <Flex gap={10} align='center' mb={10}>
         <Flex
           h='10svh'

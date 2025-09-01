@@ -6,7 +6,7 @@ const useRatings = (setProducts, showToast, user) => {
 
   const handleRatingChange = async (productId, value) => {
     try {
-      await updateProductRating(productId, value, user._id);
+      await updateProductRating(productId, value);
 
       setRatings((prev) => ({
         ...prev,

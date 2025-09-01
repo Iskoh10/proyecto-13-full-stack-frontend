@@ -29,8 +29,6 @@ const useVote = ({
         prev.map((item) => (item._id === updatedItem._id ? updatedItem : item))
       );
 
-      console.log('ESte es el updatedItem:', updatedItem);
-
       if (selectedItem?._id === updatedItem._id) {
         let itemToSet = updatedItem;
 

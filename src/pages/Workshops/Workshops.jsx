@@ -34,10 +34,11 @@ const Workshops = () => {
   });
   const { handleAddComment } = useAddComment({
     commentRef,
+    target: 'Workshop',
     setLoadingComment,
-    selectedWorkshop,
-    setSelectedWorkshop,
-    setWorkshops,
+    selectedItem: selectedWorkshop,
+    setSelectedItem: setSelectedWorkshop,
+    setItems: setWorkshops,
     showToast
   });
 

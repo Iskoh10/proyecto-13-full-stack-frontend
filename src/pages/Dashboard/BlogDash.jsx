@@ -30,6 +30,7 @@ import CustomModal from '../../components/CustomModal/CustomModal';
 import useCustomToast from '../../hooks/useCustomToast';
 import { useForm } from 'react-hook-form';
 import { useUser } from '../../Providers/UserContext';
+import DeleteButton from '../../components/DeleteButton/DeleteButton';
 
 const BlogDash = () => {
   const {
@@ -224,8 +225,6 @@ const BlogDash = () => {
   return (
     <section className='main-dashboard'>
       <HeadingDash>Blog</HeadingDash>
-      {console.log(blogs)}
-
       <Flex gap={10} align='center' mb={10}>
         <Flex
           h='10svh'
@@ -366,16 +365,11 @@ const BlogDash = () => {
                       Modificar post
                     </Button>
 
-                    <IconButton
-                      icon={<FaTrash />}
-                      colorScheme='red'
-                      size='xs'
-                      isDisabled={!post.available}
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        setSelectedPost(post);
-                        onOpen();
-                      }}
+                    <DeleteButton
+                      item={post}
+                      setSelectedItem={setSelectedPost}
+                      disabledCondition={!post.available}
+                      onOpen={onOpen}
                     />
                   </Flex>
                 </GridItem>
@@ -391,7 +385,6 @@ const BlogDash = () => {
             >
               <Flex direction='column' align='center' mt={5}>
                 <Heading textAlign='center' mb={3}>
-                  {console.log(selectedPost)}
                   {selectedPost?.title}
                 </Heading>
                 <Text>Título clave: ➡️ {selectedPost.slug}</Text>

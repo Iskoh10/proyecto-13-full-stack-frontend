@@ -16,6 +16,7 @@ import {
 import { FaComments, FaTrash } from 'react-icons/fa';
 import useCustomToast from '../../hooks/useCustomToast';
 import CustomModal from '../../components/CustomModal/CustomModal';
+import DeleteButton from '../../components/DeleteButton/DeleteButton';
 
 const CommentsDash = () => {
   const { comments, setComments, fetchResources, deleteResources } =
@@ -148,15 +149,10 @@ const CommentsDash = () => {
                     </Text>
                   </Box>
 
-                  <IconButton
-                    aria-label='Eliminar usuario'
-                    icon={<FaTrash />}
-                    colorScheme='red'
-                    size='xs'
-                    onClick={() => {
-                      setSelectedComment(comment);
-                      onOpen();
-                    }}
+                  <DeleteButton
+                    item={comment}
+                    setSelectedItem={setSelectedComment}
+                    onOpen={onOpen}
                   />
                 </Flex>
               );

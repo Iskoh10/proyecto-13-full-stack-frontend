@@ -7,7 +7,6 @@ import {
   FormLabel,
   Heading,
   Icon,
-  IconButton,
   Image,
   Input,
   InputGroup,
@@ -21,7 +20,7 @@ import {
 } from '@chakra-ui/react';
 import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
-import { FaBox, FaBreadSlice, FaPlus, FaTrash } from 'react-icons/fa';
+import { FaBox, FaBreadSlice, FaPlus } from 'react-icons/fa';
 import { useRef, useState } from 'react';
 import { GiCakeSlice, GiCroissant } from 'react-icons/gi';
 import Switcher from '../../components/Switcher/Switcher';
@@ -29,6 +28,9 @@ import useCustomToast from '../../hooks/useCustomToast';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import { useForm } from 'react-hook-form';
 import { useUser } from '../../Providers/UserContext';
+import DeleteButton from '../../components/DeleteButton/DeleteButton';
+import InfoCard from '../../components/InfoCard/InfoCard';
+import SearchBox from '../../components/SearchBox/SearchBox';
 
 const ProductsDash = () => {
   const {
@@ -70,8 +72,6 @@ const ProductsDash = () => {
   const handleSearch = async () => {
     const search = inputRef.current.value.trim();
     if (!search) return;
-
-    console.log('este es el search', search);
 
     const url = new URL('http://localhost:3000/api/v1/products/filter');
 
@@ -122,9 +122,6 @@ const ProductsDash = () => {
       });
       return;
     }
-
-    console.log('este es el data:', data);
-    console.log(typeProduct);
 
     const formData = new FormData();
     formData.append('nameProduct', data.nameProduct);
@@ -225,42 +222,18 @@ const ProductsDash = () => {
   return (
     <section className='main-dashboard'>
       <HeadingDash>Productos</HeadingDash>
-      {console.log(products)}
       <Flex gap={10} align='center' mb={10}>
-        <Flex
-          h='10svh'
-          bg='white'
-          borderRadius='10px'
-          p={5}
-          align='center'
+        <InfoCard
           w='25%'
-        >
-          <Icon as={FaBox} boxSize={12} color='blue.500' />
-          <Flex direction='column' ml={5}>
-            <Text fontSize='2rem' color='isc.darkAccent'>
-              {products.products?.length}
-            </Text>
-            <Text>Productos totales</Text>
-          </Flex>
-        </Flex>
-        <Flex
-          bg='white'
-          w='600px'
-          p={2}
-          justify='space-between'
-          borderRadius='10px'
-        >
-          <InputGroup w='100%'>
-            <Input
-              type='search'
-              placeholder='Buscar producto...'
-              ref={inputRef}
-            />
-            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-              Buscar
-            </Button>
-          </InputGroup>
-        </Flex>
+          icon={FaBox}
+          count={products.products?.length}
+          label='Productos totales'
+        />
+        <SearchBox
+          inputRef={inputRef}
+          handleSearch={handleSearch}
+          placeholder='Buscar producto...'
+        />
       </Flex>
       <Flex align='flex-start' gap={10} bg='white' borderRadius='10px' p={4}>
         <Flex
@@ -429,17 +402,11 @@ const ProductsDash = () => {
                       }
                     />
                   </Box>
-
-                  <IconButton
-                    icon={<FaTrash />}
-                    colorScheme='red'
-                    size='xs'
-                    isDisabled={!product.available}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedProduct(product);
-                      onOpen();
-                    }}
+                  <DeleteButton
+                    item={product}
+                    setSelectedItem={setSelectedProduct}
+                    disabledCondition={!product.available}
+                    onOpen={onOpen}
                   />
                 </Flex>
               );

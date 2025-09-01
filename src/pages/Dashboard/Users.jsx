@@ -1,24 +1,16 @@
-import {
-  Button,
-  Flex,
-  Icon,
-  IconButton,
-  Input,
-  InputGroup,
-  Text,
-  useDisclosure
-} from '@chakra-ui/react';
+import { Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import { useRef, useState } from 'react';
-import useCustomToast from '../../hooks/useCustomToast';
-import { FaTrash, FaUsers } from 'react-icons/fa';
-import CustomModal from '../../components/CustomModal/CustomModal';
+import { FaUsers } from 'react-icons/fa';
+import InfoCard from '../../components/InfoCard/InfoCard';
+import SearchBox from '../../components/SearchBox/SearchBox';
+import AdminDeleteUserModal from '../../components/AdminDeleteUserModal/AdminDeleteUserModal';
+import DeleteButton from '../../components/DeleteButton/DeleteButton';
 
 const Users = () => {
   const { users, setUsers, fetchResources, deleteResources } = useDashboard();
   const inputRef = useRef();
-  const { showToast } = useCustomToast();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedUser, setSelectedUser] = useState(null);
 
@@ -49,40 +41,17 @@ const Users = () => {
       <HeadingDash>Usuarios</HeadingDash>
 
       <Flex gap={10} align='center' mb={10}>
-        <Flex
-          h='10svh'
-          bg='white'
-          borderRadius='10px'
-          p={5}
-          align='center'
+        <InfoCard
           w='25%'
-        >
-          <Icon as={FaUsers} boxSize={12} color='blue.500' />
-          <Flex direction='column' ml={5}>
-            <Text fontSize='2rem' color='isc.darkAccent'>
-              {users?.users?.filter((user) => !user.isDeleted).length}
-            </Text>
-            <Text>Usuarios totales</Text>
-          </Flex>
-        </Flex>
-        <Flex
-          bg='white'
-          w='600px'
-          p={2}
-          justify='space-between'
-          borderRadius='10px'
-        >
-          <InputGroup w='100%'>
-            <Input
-              type='search'
-              placeholder='Buscar usuario...'
-              ref={inputRef}
-            />
-            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-              Buscar
-            </Button>
-          </InputGroup>
-        </Flex>
+          icon={FaUsers}
+          count={users?.users?.filter((user) => !user.isDeleted).length}
+          label='Usuarios totales'
+        />
+        <SearchBox
+          inputRef={inputRef}
+          handleSearch={handleSearch}
+          placeholder='Buscar usuario...'
+        />
       </Flex>
 
       <Flex direction='column'>
@@ -140,47 +109,22 @@ const Users = () => {
                   <Text flex={2} align='left' cursor='default'>
                     {user.email}
                   </Text>
-                  <IconButton
-                    aria-label='Eliminar usuario'
-                    icon={<FaTrash />}
-                    colorScheme='red'
-                    size='xs'
-                    isDisabled={user.role === 'admin'}
-                    onClick={() => {
-                      setSelectedUser(user);
-                      onOpen();
-                    }}
+                  <DeleteButton
+                    item={user}
+                    setSelectedItem={setSelectedUser}
+                    disabledCondition={user.role === 'admin'}
+                    onOpen={onOpen}
                   />
                 </Flex>
               );
             })}
-          <CustomModal
+          <AdminDeleteUserModal
             isOpen={isOpen}
-            onClose={() => {
-              setSelectedUser(null);
-              onClose();
-            }}
-          >
-            <Flex direction='column' mt={8}>
-              <Text m={5}>
-                ¿Estás seguro de que quieres eliminar a {selectedUser?.name}?
-              </Text>
-              <Flex justify='flex-end'>
-                <Button
-                  onClick={() => {
-                    setSelectedUser(null);
-                    onClose();
-                  }}
-                  mr={3}
-                >
-                  Cancelar
-                </Button>
-                <Button colorScheme='red' onClick={confirmDelete}>
-                  Elimminar
-                </Button>
-              </Flex>
-            </Flex>
-          </CustomModal>
+            selectedUser={selectedUser}
+            setSelectedUser={setSelectedUser}
+            onClose={onClose}
+            confirmDelete={confirmDelete}
+          />
         </Flex>
       </Flex>
     </section>

@@ -1,9 +1,10 @@
 const useAddComment = ({
   commentRef,
+  target,
   setLoadingComment,
-  selectedWorkshop,
-  setSelectedWorkshop,
-  setWorkshops,
+  selectedItem,
+  setSelectedItem,
+  setItems,
   showToast
 }) => {
   const handleAddComment = async () => {
@@ -23,8 +24,8 @@ const useAddComment = ({
         credentials: 'include',
         body: JSON.stringify({
           text,
-          target: 'Workshop',
-          eventId: selectedWorkshop._id
+          target: target,
+          eventId: selectedItem._id
         })
       });
 
@@ -32,23 +33,21 @@ const useAddComment = ({
 
       const createdComment = await res.json();
 
-      setSelectedWorkshop((prev) => ({
+      setSelectedItem((prev) => ({
         ...prev,
         comments: [...prev.comments, createdComment]
       }));
 
-      setWorkshops((prev) =>
-        prev.map((workshop) =>
-          workshop._id === selectedWorkshop._id
-            ? { ...workshop, comments: [...workshop.comments, createdComment] }
-            : workshop
+      setItems((prev) =>
+        prev.map((item) =>
+          item._id === selectedItem._id
+            ? { ...item, comments: [...item.comments, createdComment] }
+            : item
         )
       );
 
       commentRef.current.value = '';
     } catch (error) {
-      console.log(error);
-
       showToast({
         title: 'Error',
         description: 'Error al comentar',
