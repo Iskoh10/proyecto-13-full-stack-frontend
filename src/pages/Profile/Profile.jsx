@@ -8,9 +8,9 @@ import useCustomToast from '../../hooks/useCustomToast';
 import ProfileAside from '../../components/ProfileAside/ProfileAside';
 import UpdateUserForm from '../../components/UpdateUserForm/UpdateUserForm';
 import UserOrderHistory from '../../components/UserOrderHistory/UserOrderHistory';
-import DeleteAccountModal from '../../components/DeleteAccountModal/DeleteAccountModal';
 import updateUser from '../../utils/updateUser';
 import deleteAccount from '../../utils/deleteAccount';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 
 const Profile = () => {
   const { user, setUser } = useUser();
@@ -146,11 +146,12 @@ const Profile = () => {
                   Eliminar cuenta
                 </Button>
               )}
-              <DeleteAccountModal
-                isDeleteOpen={isDeleteOpen}
-                onDeleteClose={onDeleteClose}
-                isDeleting={isDeleting}
-                handleDeleteAccount={handleDeleteAccount}
+              <ConfirmDeleteModal
+                isOpen={isDeleteOpen}
+                onClose={onDeleteClose}
+                textQuestion='¿Estás seguro de que quieres eliminar tu cuenta?'
+                loading={isDeleting}
+                onAction={handleDeleteAccount}
               />
             </Flex>
           )}

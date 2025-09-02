@@ -1,23 +1,4 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Icon,
-  Image,
-  Input,
-  InputGroup,
-  Menu,
-  MenuButton,
-  MenuItem,
-  MenuList,
-  ModalFooter,
-  Text,
-  useDisclosure
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import { FaBox, FaBreadSlice, FaPlus } from 'react-icons/fa';
@@ -25,12 +6,15 @@ import { useRef, useState } from 'react';
 import { GiCakeSlice, GiCroissant } from 'react-icons/gi';
 import Switcher from '../../components/Switcher/Switcher';
 import useCustomToast from '../../hooks/useCustomToast';
-import CustomModal from '../../components/CustomModal/CustomModal';
 import { useForm } from 'react-hook-form';
 import { useUser } from '../../Providers/UserContext';
 import DeleteButton from '../../components/DeleteButton/DeleteButton';
 import InfoCard from '../../components/InfoCard/InfoCard';
 import SearchBox from '../../components/SearchBox/SearchBox';
+import DashboardButton from '../../components/DashboardButton/DashboardButton';
+import useCreateModForm from '../../hooks/useCreateModForm';
+import ProductFormModal from '../../components/ProductFormModal/ProductFormModal';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 
 const ProductsDash = () => {
   const {
@@ -92,6 +76,8 @@ const ProductsDash = () => {
           description: 'No se encontró ningún producto',
           status: 'info'
         });
+        inputRef.current.value = '';
+        return;
       }
 
       setProducts(data);
@@ -112,67 +98,17 @@ const ProductsDash = () => {
     setTypeProduct(value);
   };
 
-  const onSubmit = async (data) => {
-    if (!user) throw new Error('No estás logueado.');
-    if (imageFiles.length === 0) {
-      showToast({
-        title: 'Error',
-        description: 'Sube una imagen',
-        status: 'error'
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('nameProduct', data.nameProduct);
-    formData.append('description', data.description);
-    formData.append('price', Number(data.price));
-    formData.append('stock', Number(data.stock));
-    formData.append('productImage', imageFiles[0]);
-    formData.append('available', data.available ? true : false);
-    formData.append('typeProduct', typeProduct);
-    formData.append('user', user._id);
-
-    try {
-      setLoading((prev) => ({ ...prev, products: true }));
-      const url = selectedProduct
-        ? `http://localhost:3000/api/v1/products/${selectedProduct._id}`
-        : 'http://localhost:3000/api/v1/products';
-      const method = selectedProduct ? 'PUT' : 'POST';
-      const res = await fetch(url, {
-        method,
-        credentials: 'include',
-        body: formData
-      });
-
-      if (!res.ok) throw new Error('Error creando/actualizando el producto.');
-
-      reset();
-      setImageFiles([]);
-      setSelectedProduct(null);
-      onCloseNewProduct();
-      fetchResources(
-        'http://localhost:3000/api/v1/products',
-        setProducts,
-        'products'
-      );
-
-      showToast({
-        description: selectedProduct
-          ? 'Producto actualizado correctamente.'
-          : 'Producto creado correctamente.',
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo guardar el producto',
-        status: 'error'
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, products: false }));
-    }
-  };
+  const { onSubmit } = useCreateModForm({
+    user,
+    reset,
+    setImageFiles,
+    setSelectedItem: setSelectedProduct,
+    onCloseNewItem: onCloseNewProduct,
+    fetchResources,
+    setItems: setProducts,
+    showToast,
+    setLoading
+  });
 
   const handleSwitch = async (productId, currentValue) => {
     try {
@@ -244,80 +180,71 @@ const ProductsDash = () => {
           borderRightStyle='solid'
           borderRightColor='blue.400'
         >
-          <Flex
-            align='center'
-            justify='space-around'
-            bg='blue.400'
-            _hover={{ bg: 'blue.200' }}
-            w='90%'
-            p={2}
-            borderRadius='10px'
-            cursor='pointer'
-            onClick={() =>
+          <DashboardButton
+            onAction={() =>
               filterByCategory({ filter: 'allProducts', key: 'products' })
             }
+            bg='blue.400'
+            w='90%'
+            color='white'
+            _hover={{ bg: 'blue.300' }}
           >
-            <Text>Todos los productos</Text>
-          </Flex>
-
-          <Flex
-            align='center'
-            justify='space-around'
-            bg='isc.darkAccent'
-            _hover={{ bg: 'isc.accent' }}
-            w='70%'
-            p={2}
-            borderRadius='10px'
-            cursor='pointer'
-            onClick={(e) =>
+            Todos los productos
+          </DashboardButton>
+          <DashboardButton
+            onAction={() =>
               filterByCategory({ filter: 'panaderia', key: 'products' })
             }
+            bg='isc.darkAccent'
+            w='70%'
+            color='white'
+            _hover={{ bg: 'isc.accent' }}
           >
             <Icon
               as={FaBreadSlice}
               boxSize={6}
               color='white'
               title='Panadería'
+              mr={5}
             />
-            <Text color='white'>Panadería</Text>
-          </Flex>
-          <Flex
-            align='center'
-            justify='space-around'
-            bg='isc.secondary'
-            _hover={{ bg: 'isc.accent' }}
-            w='70%'
-            p={2}
-            borderRadius='10px'
-            cursor='pointer'
-            onClick={() =>
+            Panadería
+          </DashboardButton>
+          <DashboardButton
+            onAction={() =>
               filterByCategory({ filter: 'bolleria', key: 'products' })
             }
-          >
-            <Icon as={GiCroissant} boxSize={6} color='white' title='Bollería' />
-            <Text color='white'>Bollería</Text>
-          </Flex>
-          <Flex
-            align='center'
-            justify='space-around'
-            bg='red.500'
-            _hover={{ bg: 'red.200' }}
+            bg='isc.secondary'
             w='70%'
-            p={2}
-            borderRadius='10px'
-            cursor='pointer'
-            onClick={() =>
+            color='white'
+            _hover={{ bg: 'isc.accent' }}
+          >
+            <Icon
+              as={GiCroissant}
+              boxSize={6}
+              color='white'
+              title='Bollería'
+              mr={5}
+            />
+            Bollería
+          </DashboardButton>
+          <DashboardButton
+            onAction={() =>
               filterByCategory({ filter: 'pasteleria', key: 'products' })
             }
+            bg='red.500'
+            w='70%'
+            color='white'
+            _hover={{ bg: 'red.300' }}
           >
             <Icon
               as={GiCakeSlice}
               boxSize={6}
               color='white'
               title='Pastelería'
+              mr={5}
             />
-            <Text color='white'>Pastelería</Text>
-          </Flex>
+            Pastelería
+          </DashboardButton>
         </Flex>
         <Flex direction='column' w='100%' justify='space-between'>
           <Flex w='100%' align='center' mb={10}>
@@ -332,13 +259,8 @@ const ProductsDash = () => {
                 Disponible
               </Text>
             </Box>
-
-            <Button
-              leftIcon={<FaPlus />}
-              bg='blue.500'
-              color='white'
-              _hover={{ bg: 'blue.200' }}
-              onClick={() => {
+            <DashboardButton
+              onAction={() => {
                 setTypeProduct(null);
                 setSelectedProduct(null);
                 reset({
@@ -351,9 +273,19 @@ const ProductsDash = () => {
                 setImageFiles([]);
                 onOpenNewProduct();
               }}
+              bg='blue.500'
+              color='white'
+              _hover={{ bg: 'blue.400' }}
             >
-              Nuevo producto
-            </Button>
+              <Icon
+                as={FaPlus}
+                boxSize={6}
+                color='white'
+                title='Nuevo Producto'
+                mr={5}
+              />
+              Nuevo Producto
+            </DashboardButton>
           </Flex>
           <Flex direction='column' w='100%' gap={4}>
             {products.products?.map((product, index) => {
@@ -412,165 +344,42 @@ const ProductsDash = () => {
               );
             })}
 
-            <CustomModal
+            <ConfirmDeleteModal
               isOpen={isOpen}
               onClose={() => {
                 setSelectedProduct(null);
                 onClose();
               }}
-            >
-              <Flex direction='column' mt={8}>
-                <Text m={5}>
-                  ¿Estás seguro de que quieres eliminar{' '}
-                  {selectedProduct?.nameProduct}?
-                </Text>
-                <Flex justify='flex-end'>
-                  <Button
-                    onClick={() => {
-                      setSelectedProduct(null);
-                      onClose();
-                    }}
-                    mr={3}
-                  >
-                    Cancelar
-                  </Button>
-                  <Button colorScheme='red' onClick={confirmDelete}>
-                    Elimminar
-                  </Button>
-                </Flex>
-              </Flex>
-            </CustomModal>
+              textQuestion={`¿Estás seguro de que quieres eliminar ${selectedProduct?.nameProduct}?`}
+              onAction={confirmDelete}
+            />
 
-            <CustomModal
-              isOpen={isOpenNewProduct}
-              onClose={onCloseNewProduct}
-              size='xl'
-            >
-              <Flex direction='column' align='center' mt={5}>
-                <Heading textAlign='center' mb={3}>
-                  {selectedProduct
-                    ? 'Modificar producto'
-                    : 'Crear nuevo producto'}
-                </Heading>
-                <form id='new-product-form' onSubmit={handleSubmit(onSubmit)}>
-                  <FormControl mb={4} isInvalid={errors.title}>
-                    <FormLabel>Nombre del producto</FormLabel>
-                    <Input
-                      placeholder='Nombre del producto...'
-                      {...register('nameProduct', {
-                        required: 'El nombre es obligatorio'
-                      })}
-                    />
-                  </FormControl>
-
-                  <FormControl mb={4} isInvalid={errors.slug}>
-                    <FormLabel>Descripción</FormLabel>
-                    <Input
-                      placeholder='Descripcion...'
-                      {...register('description', {
-                        required: 'La descripción es obligatorio'
-                      })}
-                    />
-                  </FormControl>
-
-                  <FormControl mb={4} isInvalid={errors.summary}>
-                    <FormLabel>Precio</FormLabel>
-                    <Input
-                      type='number'
-                      step='0.01'
-                      placeholder='Precio...'
-                      {...register('price', {
-                        required: 'El precio es obligatorio'
-                      })}
-                    />
-                  </FormControl>
-
-                  <FormControl mb={4} isInvalid={errors.body}>
-                    <FormLabel>Stock</FormLabel>
-                    <Input
-                      type='number'
-                      placeholder='Stock del producto...'
-                      {...register('stock', {
-                        required: 'El stock es obligatorio'
-                      })}
-                    />
-                  </FormControl>
-
-                  <FormControl mb={4}>
-                    <FormLabel>Imagen</FormLabel>
-                    <Input
-                      type='file'
-                      accept='image/*'
-                      onChange={(e) => {
-                        const file = e.target.files[0];
-                        if (file) setImageFiles([file]);
-                      }}
-                    />
-                    {imageFiles.length > 0 && (
-                      <Image
-                        src={URL.createObjectURL(imageFiles[0])}
-                        alt='preview'
-                        borderRadius='md'
-                        boxSize='200px'
-                        objectFit='cover'
-                      />
-                    )}
-                  </FormControl>
-
-                  <FormControl mb={4}>
-                    <Checkbox {...register('available')}>Disponible</Checkbox>
-                  </FormControl>
-
-                  <FormControl mb={4}>
-                    <Menu>
-                      <MenuButton
-                        as={Box}
-                        m={2}
-                        p={2}
-                        bg='white'
-                        w='250px'
-                        border='1px solid'
-                        borderColor='gray.400'
-                        _hover={{ bg: 'gray.200' }}
-                        borderRadius='md'
-                        cursor='pointer'
-                      >
-                        {typeProduct ? typeProduct : 'Tipo de producto'}
-                      </MenuButton>
-                      <MenuList placement='bottom-start'>
-                        <MenuItem onClick={() => handleSelect('panaderia')}>
-                          Panadería
-                        </MenuItem>
-                        <MenuItem onClick={() => handleSelect('bolleria')}>
-                          Bollería
-                        </MenuItem>
-                        <MenuItem onClick={() => handleSelect('pasteleria')}>
-                          Pastelería
-                        </MenuItem>
-                      </MenuList>
-                    </Menu>
-                  </FormControl>
-
-                  <ModalFooter>
-                    <Button
-                      colorScheme={selectedProduct ? 'red' : 'blue'}
-                      type='submit'
-                      form='new-product-form'
-                      isLoading={loading.products}
-                      loadingText={
-                        selectedProduct ? 'Modificando...' : 'Creando...'
-                      }
-                      isDisabled={loading.products}
-                    >
-                      {selectedProduct ? 'Modificar' : 'Crear'}
-                    </Button>
-                    <Button ml={3} onClick={onCloseNewProduct}>
-                      Cancelar
-                    </Button>
-                  </ModalFooter>
-                </form>
-              </Flex>
-            </CustomModal>
+            <ProductFormModal
+              isOpenNewProduct={isOpenNewProduct}
+              onCloseNewProduct={onCloseNewProduct}
+              selectedProduct={selectedProduct}
+              onSubmit={handleSubmit((data) =>
+                onSubmit({
+                  data,
+                  imageFiles,
+                  target: 'products',
+                  typeProduct,
+                  selectedItem: selectedProduct,
+                  targetText: 'Producto'
+                })
+              )}
+              handleSubmit={handleSubmit}
+              errors={errors}
+              register={register}
+              imageFiles={imageFiles}
+              typeProduct={typeProduct}
+              handleSelect={handleSelect}
+              loading={loading}
+              onImageAction={(e) => {
+                const file = e.target.files[0];
+                if (file) setImageFiles([file]);
+              }}
+            />
           </Flex>
         </Flex>
       </Flex>

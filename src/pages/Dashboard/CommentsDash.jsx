@@ -3,20 +3,18 @@ import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import {
   Box,
-  Button,
   Divider,
   Flex,
   Icon,
-  IconButton,
-  Input,
-  InputGroup,
   Text,
   useDisclosure
 } from '@chakra-ui/react';
-import { FaComments, FaTrash } from 'react-icons/fa';
+import { FaComments } from 'react-icons/fa';
 import useCustomToast from '../../hooks/useCustomToast';
-import CustomModal from '../../components/CustomModal/CustomModal';
 import DeleteButton from '../../components/DeleteButton/DeleteButton';
+import DashboardButton from '../../components/DashboardButton/DashboardButton';
+import SearchBox from '../../components/SearchBox/SearchBox';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 
 const CommentsDash = () => {
   const { comments, setComments, fetchResources, deleteResources } =
@@ -41,7 +39,17 @@ const CommentsDash = () => {
       if (!res.ok) throw new Error('Error en la búsqueda.');
       const data = await res.json();
 
+      if (data.length === 0) {
+        showToast({
+          description: 'No se encontró ningún comentario.',
+          status: 'info'
+        });
+        inputRef.current.value = '';
+        return;
+      }
+
       setComments(data);
+      inputRef.current.value = '';
     } catch (error) {
       inputRef.current.value = '';
       showToast({
@@ -87,35 +95,16 @@ const CommentsDash = () => {
             <Text>Comentarios totales</Text>
           </Flex>
         </Flex>
-        <Flex
-          bg='white'
-          w='600px'
-          p={2}
-          justify='space-between'
-          borderRadius='10px'
-        >
-          <InputGroup w='80%'>
-            <Input
-              type='search'
-              placeholder='Buscar comentario...'
-              ref={inputRef}
-            />
-            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-              Buscar
-            </Button>
-          </InputGroup>
-          <Button
-            bg='gray.400'
-            borderRadius='10px'
-            p={2}
-            _hover={{ bg: 'gray.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={() => resetComments()}
-          >
-            Todos
-          </Button>
-        </Flex>
+        <SearchBox
+          inputRef={inputRef}
+          handleSearch={handleSearch}
+          placeholder='Buscar comentario...'
+          allButton={
+            <DashboardButton onAction={resetComments} w='100px'>
+              Todos
+            </DashboardButton>
+          }
+        />
       </Flex>
 
       <Flex bg='white' borderRadius='10px' p={5} direction='column' gap={2}>
@@ -129,64 +118,44 @@ const CommentsDash = () => {
         </Flex>
         <Divider borderColor='gray.400' />
 
-        {comments.length > 0
-          ? comments.map((comment, index) => {
-              const bgComment = index % 2 === 0 ? 'gray.200' : 'white';
+        {comments.map((comment, index) => {
+          const bgComment = index % 2 === 0 ? 'gray.200' : 'white';
 
-              return (
-                <Flex
-                  key={comment._id}
-                  justify='space-between'
-                  bg={bgComment}
-                  _hover={{ bg: 'gray.400' }}
-                >
-                  <Box flex='1'>
-                    <Text>{comment.text}</Text>
-                  </Box>
-                  <Box flex='1'>
-                    <Text>
-                      {comment.user.name} {comment.user.lastName}
-                    </Text>
-                  </Box>
+          return (
+            <Flex
+              key={comment._id}
+              justify='space-between'
+              bg={bgComment}
+              _hover={{ bg: 'gray.400' }}
+            >
+              <Box flex='1'>
+                <Text>{comment.text}</Text>
+              </Box>
+              <Box flex='1'>
+                <Text>
+                  {comment.user.name} {comment.user.lastName}
+                </Text>
+              </Box>
 
-                  <DeleteButton
-                    item={comment}
-                    setSelectedItem={setSelectedComment}
-                    onOpen={onOpen}
-                  />
-                </Flex>
-              );
-            })
-          : 'Ningún comentario seleccionado'}
+              <DeleteButton
+                item={comment}
+                setSelectedItem={setSelectedComment}
+                onOpen={onOpen}
+              />
+            </Flex>
+          );
+        })}
 
-        <CustomModal
+        <ConfirmDeleteModal
           isOpen={isOpen}
           onClose={() => {
             setSelectedComment(null);
             onClose();
           }}
-        >
-          <Flex direction='column' mt={8}>
-            <Text m={5}>
-              ¿Estás seguro de que quieres eliminar este comentario ➡️ "
-              {selectedComment?.text}"?
-            </Text>
-            <Flex justify='flex-end'>
-              <Button
-                onClick={() => {
-                  setSelectedComment(null);
-                  onClose();
-                }}
-                mr={3}
-              >
-                Cancelar
-              </Button>
-              <Button colorScheme='red' onClick={confirmDelete}>
-                Elimminar
-              </Button>
-            </Flex>
-          </Flex>
-        </CustomModal>
+          textQuestion={`¿Estás seguro de que quieres eliminar este comentario ➡️ "
+              ${selectedComment?.text}"?`}
+          onAction={confirmDelete}
+        />
       </Flex>
     </section>
   );

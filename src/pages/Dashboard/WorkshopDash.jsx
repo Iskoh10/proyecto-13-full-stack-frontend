@@ -28,6 +28,10 @@ import { useForm } from 'react-hook-form';
 import { useUser } from '../../Providers/UserContext';
 import DeleteButton from '../../components/DeleteButton/DeleteButton';
 import InfoCard from '../../components/InfoCard/InfoCard';
+import DashboardButton from '../../components/DashboardButton/DashboardButton';
+import SearchBox from '../../components/SearchBox/SearchBox';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import useCreateModForm from '../../hooks/useCreateModForm';
 
 const WorkshopsDash = () => {
   const {
@@ -83,9 +87,8 @@ const WorkshopsDash = () => {
 
       if (data.length === 0) {
         showToast({
-          title: 'Error',
-          description: 'Error, no se encontró ninguna coincidencia.',
-          status: 'error'
+          description: 'No se encontró ningún taller.',
+          status: 'info'
         });
         inputRef.current.value = '';
         return;
@@ -113,68 +116,17 @@ const WorkshopsDash = () => {
     );
   };
 
-  const onSubmit = async (data) => {
-    if (!user) throw new Error('No estás logueado.');
-    if (imageFiles.length === 0) {
-      showToast({
-        title: 'Error',
-        description: 'Sube una imagen',
-        status: 'error'
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('description', data.description);
-    formData.append('eventDate', data.eventDate);
-    formData.append('image', imageFiles[0]);
-    formData.append('capacity', data.capacity);
-    formData.append('available', data.available);
-    formData.append('user', user._id);
-
-    try {
-      setLoading((prev) => ({ ...prev, workshops: true }));
-      const url = selectedWorkshop
-        ? `http://localhost:3000/api/v1/workshops/${selectedWorkshop._id}`
-        : 'http://localhost:3000/api/v1/workshops';
-
-      const method = selectedWorkshop ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        credentials: 'include',
-        body: formData
-      });
-
-      if (!res.ok) throw new Error('Error creando/actualizando el taller.');
-
-      reset();
-      setImageFiles([]);
-      setSelectedWorkshop(null);
-      onCloseNewWorkshop();
-      fetchResources(
-        'http://localhost:3000/api/v1/workshops',
-        setWorkshops,
-        'workshops'
-      );
-
-      showToast({
-        description: selectedWorkshop
-          ? 'Taller actualizado correctamente.'
-          : 'Taller creado correctamente.',
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo guardar el taller',
-        status: 'error'
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, workshops: false }));
-    }
-  };
+  const { onSubmit } = useCreateModForm({
+    user,
+    reset,
+    setImageFiles,
+    setSelectedItem: setSelectedWorkshop,
+    onCloseNewItem: onCloseNewWorkshop,
+    fetchResources,
+    setItems: setWorkshops,
+    showToast,
+    setLoading
+  });
 
   const handleSwitch = async (workshopId, currentValue) => {
     try {
@@ -227,38 +179,17 @@ const WorkshopsDash = () => {
           count={workshops?.length}
           label='Talleres totales'
         />
-
-        <Flex
-          bg='white'
-          w='600px'
-          p={2}
-          justify='space-between'
-          borderRadius='10px'
-        >
-          <InputGroup w='80%'>
-            <Input
-              type='search'
-              placeholder='Buscar taller...'
-              ref={inputRef}
-            />
-            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-              Buscar
-            </Button>
-          </InputGroup>
-          <Button
-            bg='gray.400'
-            borderRadius='10px'
-            p={2}
-            _hover={{ bg: 'gray.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={() => resetWorkshops()}
-          >
-            Todos
-          </Button>
-        </Flex>
+        <SearchBox
+          inputRef={inputRef}
+          handleSearch={handleSearch}
+          placeholder='Buscar taller...'
+          allButton={
+            <DashboardButton onAction={resetWorkshops} w='100px'>
+              Todos
+            </DashboardButton>
+          }
+        />
       </Flex>
-
       <Flex bg='white' borderRadius='10px' p={5} direction='column' gap={2}>
         <Flex mb={5} align='center'>
           <Box w='39%'>
@@ -307,6 +238,7 @@ const WorkshopsDash = () => {
             <Flex
               key={workshop._id}
               justify='space-between'
+              align='center'
               bg={bgWorkshop}
               p={2}
               _hover={{ bg: 'gray.300' }}
@@ -351,33 +283,15 @@ const WorkshopsDash = () => {
           );
         })}
 
-        <CustomModal
+        <ConfirmDeleteModal
           isOpen={isOpen}
           onClose={() => {
             setSelectedWorkshop(null);
             onClose();
           }}
-        >
-          <Flex direction='column' mt={8}>
-            <Text m={5}>
-              ¿Estás seguro de que quieres eliminar {selectedWorkshop?.title}?
-            </Text>
-            <Flex justify='flex-end'>
-              <Button
-                onClick={() => {
-                  setSelectedWorkshop(null);
-                  onClose();
-                }}
-                mr={3}
-              >
-                Cancelar
-              </Button>
-              <Button colorScheme='red' onClick={confirmDelete}>
-                Elimminar
-              </Button>
-            </Flex>
-          </Flex>
-        </CustomModal>
+          textQuestion={`¿Estás seguro de que quieres eliminar « ${selectedWorkshop?.title} »?`}
+          onAction={confirmDelete}
+        />
 
         <CustomModal
           isOpen={isOpenNewWorkshop}
@@ -399,7 +313,18 @@ const WorkshopsDash = () => {
             <Heading textAlign='center' mb={3}>
               {selectedWorkshop ? 'Modificar taller' : 'Crear nuevo taller'}
             </Heading>
-            <form id='new-workshop-form' onSubmit={handleSubmit(onSubmit)}>
+            <form
+              id='new-workshop-form'
+              onSubmit={handleSubmit((data) =>
+                onSubmit({
+                  data,
+                  imageFiles,
+                  target: 'workshops',
+                  selectedItem: selectedWorkshop,
+                  targetText: 'Taller'
+                })
+              )}
+            >
               <FormControl mb={4} isInvalid={errors.title}>
                 <FormLabel>Título</FormLabel>
                 <Input
@@ -492,5 +417,3 @@ const WorkshopsDash = () => {
 };
 
 export default WorkshopsDash;
-
-//! AÑADIR BOTON TODOS A SearchBox opcional

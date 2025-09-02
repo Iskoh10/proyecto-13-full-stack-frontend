@@ -2,22 +2,37 @@ import { Flex, Tooltip } from '@chakra-ui/react';
 import CustomLink from '../CustomLink/CustomLink';
 import { Link } from 'react-router-dom';
 
-const NavBar = ({ user }) => {
+const NavBar = ({
+  user,
+  onClose,
+  flexDirection = 'row',
+  display = 'flex',
+  w = '80%'
+}) => {
   return (
-    <Flex as='nav' w='80%' p={{ base: 2, md: 4 }} justifyContent='center'>
+    <Flex
+      as='nav'
+      w={w}
+      p={{ base: 2, md: 4 }}
+      justifyContent='center'
+      display={display}
+    >
       <Flex
         as='ul'
         className='ul_navbar'
-        gap={{ base: 2, md: 8 }}
+        gap={{ base: 2, md: 6 }}
         justify={{ base: 'center', md: 'space-evenly' }}
+        flexDirection={flexDirection}
         maxW='1200px'
       >
-        <CustomLink link='/' nameLink='Inicio' />
-        <CustomLink link='/products' nameLink='Productos' />
-        <CustomLink link='/workshops' nameLink='Talleres' />
-        <CustomLink link='/blog' nameLink='Blog' />
+        <CustomLink link='/' nameLink='Inicio' onClick={onClose} />
+        <CustomLink link='/products' nameLink='Productos' onClick={onClose} />
+        <CustomLink link='/workshops' nameLink='Talleres' onClick={onClose} />
+        <CustomLink link='/blog' nameLink='Blog' onClick={onClose} />
 
-        {user && <CustomLink link='/profile' nameLink='Mi cuenta' />}
+        {user && (
+          <CustomLink link='/profile' nameLink='Mi cuenta' onClick={onClose} />
+        )}
         {user?.role === 'admin' && (
           <Link to='/dashboard'>
             <Tooltip label='Dashboard' placement='right' hasArrow>

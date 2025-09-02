@@ -1,12 +1,13 @@
-import { Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
+import { Flex, Text, useDisclosure } from '@chakra-ui/react';
 import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import { useRef, useState } from 'react';
 import { FaUsers } from 'react-icons/fa';
 import InfoCard from '../../components/InfoCard/InfoCard';
 import SearchBox from '../../components/SearchBox/SearchBox';
-import AdminDeleteUserModal from '../../components/AdminDeleteUserModal/AdminDeleteUserModal';
 import DeleteButton from '../../components/DeleteButton/DeleteButton';
+import DashboardButton from '../../components/DashboardButton/DashboardButton';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 
 const Users = () => {
   const { users, setUsers, fetchResources, deleteResources } = useDashboard();
@@ -23,6 +24,15 @@ const Users = () => {
       setUsers,
       'users'
     );
+
+    // if (data.length === 0) {
+    //     showToast({
+    //       description: 'No se encontró ningún usuario.',
+    //       status: 'info'
+    //     });
+    //     inputRef.current.value = '';
+    //     return;
+    //   }
     inputRef.current.value = '';
   };
 
@@ -64,9 +74,13 @@ const Users = () => {
           p={4}
         >
           <Flex p={2} align='center' gap={2}>
-            <Button onClick={handleReloadUsers} variant='solid' bg='green.300'>
+            <DashboardButton
+              onAction={handleReloadUsers}
+              value='pending'
+              bg='green.300'
+            >
               Todos
-            </Button>
+            </DashboardButton>
           </Flex>
           <Flex w='100%' justify='flex-start' mb={4} bg='gray.200' p={1}>
             <Text flex={1} textAlign='left'>
@@ -80,50 +94,56 @@ const Users = () => {
             </Text>
           </Flex>
 
-          {users?.users
-            ?.filter((user) => !user.isDeleted)
-            .map((user, index) => {
-              const bgColor =
-                user.role === 'admin'
-                  ? 'green.200'
-                  : index % 2 === 0
-                  ? 'white'
-                  : 'gray.100';
+          {users.users.length > 0 ? (
+            users?.users
+              ?.filter((user) => !user.isDeleted)
+              .map((user, index) => {
+                const bgColor =
+                  user.role === 'admin'
+                    ? 'green.200'
+                    : index % 2 === 0
+                    ? 'white'
+                    : 'gray.100';
 
-              return (
-                <Flex
-                  key={user._id}
-                  w='100%'
-                  p={1}
-                  align='center'
-                  justify='flex-start'
-                  bg={bgColor}
-                  _hover={{ bg: 'gray.300' }}
-                >
-                  <Text flex={1} textAlign='left' cursor='default'>
-                    {user.name} {user.lastName}
-                  </Text>
-                  <Text flex={1} textAlign='left' cursor='default'>
-                    {user.phone}
-                  </Text>
-                  <Text flex={2} align='left' cursor='default'>
-                    {user.email}
-                  </Text>
-                  <DeleteButton
-                    item={user}
-                    setSelectedItem={setSelectedUser}
-                    disabledCondition={user.role === 'admin'}
-                    onOpen={onOpen}
-                  />
-                </Flex>
-              );
-            })}
-          <AdminDeleteUserModal
+                return (
+                  <Flex
+                    key={user._id}
+                    w='100%'
+                    p={1}
+                    align='center'
+                    justify='flex-start'
+                    bg={bgColor}
+                    _hover={{ bg: 'gray.300' }}
+                  >
+                    <Text flex={1} textAlign='left' cursor='default'>
+                      {user.name} {user.lastName}
+                    </Text>
+                    <Text flex={1} textAlign='left' cursor='default'>
+                      {user.phone}
+                    </Text>
+                    <Text flex={2} align='left' cursor='default'>
+                      {user.email}
+                    </Text>
+                    <DeleteButton
+                      item={user}
+                      setSelectedItem={setSelectedUser}
+                      disabledCondition={user.role === 'admin'}
+                      onOpen={onOpen}
+                    />
+                  </Flex>
+                );
+              })
+          ) : (
+            <Text textAlign='center'>Ningún usuario encontrado</Text>
+          )}
+          <ConfirmDeleteModal
             isOpen={isOpen}
-            selectedUser={selectedUser}
-            setSelectedUser={setSelectedUser}
-            onClose={onClose}
-            confirmDelete={confirmDelete}
+            onClose={() => {
+              setSelectedUser(null);
+              onClose();
+            }}
+            textQuestion={`¿Estás seguro de que quieres eliminar a ${selectedUser?.name}?`}
+            onAction={confirmDelete}
           />
         </Flex>
       </Flex>

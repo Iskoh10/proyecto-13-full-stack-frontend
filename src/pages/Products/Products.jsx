@@ -112,12 +112,11 @@ const Products = () => {
         Nuestros Productos
       </Heading>
       <Grid
-        templateColumns='repeat(auto-fit, minmax(300px, 1fr))'
-        justifyContent='center'
+        templateColumns='repeat(auto-fill, minmax(300px, 1fr))'
         gap='6'
         p='2'
-        maxW='1500px'
-        mx='auto'
+        justifyContent='center'
+        justifyItems='center'
       >
         {products.map((item) => {
           return (

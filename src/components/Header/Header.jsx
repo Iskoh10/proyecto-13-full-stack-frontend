@@ -1,4 +1,15 @@
-import { Box, Button, Flex, Spacer } from '@chakra-ui/react';
+import {
+  Box,
+  Button,
+  Drawer,
+  DrawerBody,
+  DrawerContent,
+  DrawerOverlay,
+  Flex,
+  Spacer,
+  useDisclosure,
+  useMediaQuery
+} from '@chakra-ui/react';
 import Logo from '../Logo/Logo';
 import NavBar from '../NavBar/NavBar';
 import { useUser } from '../../Providers/UserContext';
@@ -7,6 +18,8 @@ import { useNavigate, Link as RouterLink } from 'react-router-dom';
 const Header = () => {
   const { user, loading, logoutUser } = useUser();
   const navigate = useNavigate();
+  const { isOpen, onOpen, onClose } = useDisclosure();
+  const [isWideScreen] = useMediaQuery('(min-width: 1360px)');
 
   if (loading) return null;
 
@@ -19,10 +32,20 @@ const Header = () => {
     <Box as='header' p='6' boxShadow='sm' bg='isc.primary'>
       <Flex align='center'>
         <Logo />
-        <NavBar user={user} />
+        {isWideScreen ? (
+          <NavBar user={user} />
+        ) : (
+          <Button onClick={onOpen}>☰</Button>
+        )}
+
         <Spacer />
         {user ? (
-          <Button colorScheme='red' onClick={handleLogout} px={3}>
+          <Button
+            colorScheme='red'
+            fontSize={{ base: 'sm', md: 'xs', lg: 'lg' }}
+            onClick={handleLogout}
+            px={3}
+          >
             Cerrar sesión
           </Button>
         ) : (
@@ -31,6 +54,20 @@ const Header = () => {
           </Button>
         )}
       </Flex>
+
+      <Drawer isOpen={isOpen} placement='left' size='sm' onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent>
+          <DrawerBody>
+            <NavBar
+              user={user}
+              flexDirection='column'
+              gap={4}
+              onClose={onClose}
+            />
+          </DrawerBody>
+        </DrawerContent>
+      </Drawer>
     </Box>
   );
 };

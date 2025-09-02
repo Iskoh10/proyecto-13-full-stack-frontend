@@ -1,6 +1,6 @@
 import { Button, Flex, Input, InputGroup } from '@chakra-ui/react';
 
-const SearchBox = ({ inputRef, handleSearch, placeholder }) => {
+const SearchBox = ({ inputRef, handleSearch, placeholder, allButton = '' }) => {
   return (
     <Flex
       bg='white'
@@ -9,11 +9,12 @@ const SearchBox = ({ inputRef, handleSearch, placeholder }) => {
       justify='space-between'
       borderRadius='10px'
     >
-      <InputGroup w='100%'>
+      <InputGroup w='100%' gap={5}>
         <Input type='search' placeholder={placeholder} ref={inputRef} />
         <Button ml={2} colorScheme='blue' onClick={handleSearch}>
           Buscar
         </Button>
+        {allButton && allButton}
       </InputGroup>
     </Flex>
   );

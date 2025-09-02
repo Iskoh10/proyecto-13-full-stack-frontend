@@ -20,6 +20,7 @@ import getStatusProps from '../../utils/getStatusProps';
 import useCustomToast from '../../hooks/useCustomToast';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import Ticket from '../../components/Ticket/Ticket';
+import DashboardButton from '../../components/DashboardButton/DashboardButton';
 
 const OrdersDash = () => {
   const { orders, setOrders, fetchResources } = useDashboard();
@@ -117,54 +118,36 @@ const OrdersDash = () => {
           bg='white'
           borderRadius='10px'
         >
-          <Button
-            bg='gray.400'
-            borderRadius='10px'
-            p={2}
+          <DashboardButton
+            onAction={(e) => searchByCategory(e.currentTarget.value)}
             value='allOrders'
-            _hover={{ bg: 'gray.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={(e) => searchByCategory(e.currentTarget.value)}
           >
             Todos
-          </Button>
-          <Button
-            bg='blue.400'
-            borderRadius='10px'
-            p={2}
+          </DashboardButton>
+          <DashboardButton
+            onAction={(e) => searchByCategory(e.currentTarget.value)}
             value='pending'
-            _hover={{ bg: 'blue.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={(e) => searchByCategory(e.currentTarget.value)}
+            bg='blue.400'
+            _hover={{ bg: 'blue.300' }}
           >
             Pendientes
-          </Button>
-          <Button
-            bg='green.400'
-            borderRadius='10px'
-            p={2}
+          </DashboardButton>
+          <DashboardButton
+            onAction={(e) => searchByCategory(e.currentTarget.value)}
             value='delivered'
-            _hover={{ bg: 'green.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={(e) => searchByCategory(e.currentTarget.value)}
+            bg='green.400'
+            _hover={{ bg: 'green.300' }}
           >
             Entregados
-          </Button>
-          <Button
-            bg='red.400'
-            borderRadius='10px'
-            p={2}
+          </DashboardButton>
+          <DashboardButton
+            onAction={(e) => searchByCategory(e.currentTarget.value)}
             value='cancelled'
-            _hover={{ bg: 'red.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={(e) => searchByCategory(e.currentTarget.value)}
+            bg='red.400'
+            _hover={{ bg: 'red.300' }}
           >
             Cancelados
-          </Button>
+          </DashboardButton>
         </Flex>
       </Flex>
 

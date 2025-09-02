@@ -12,10 +12,8 @@ import {
   GridItem,
   Heading,
   Icon,
-  IconButton,
   Image,
   Input,
-  InputGroup,
   ModalFooter,
   SimpleGrid,
   Stack,
@@ -24,13 +22,17 @@ import {
   useDisclosure
 } from '@chakra-ui/react';
 import { GiNotebook } from 'react-icons/gi';
-import { FaPlus, FaTrash } from 'react-icons/fa';
+import { FaPlus } from 'react-icons/fa';
 import Switcher from '../../components/Switcher/Switcher';
 import CustomModal from '../../components/CustomModal/CustomModal';
 import useCustomToast from '../../hooks/useCustomToast';
 import { useForm } from 'react-hook-form';
 import { useUser } from '../../Providers/UserContext';
 import DeleteButton from '../../components/DeleteButton/DeleteButton';
+import DashboardButton from '../../components/DashboardButton/DashboardButton';
+import SearchBox from '../../components/SearchBox/SearchBox';
+import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import useCreateModForm from '../../hooks/useCreateModForm';
 
 const BlogDash = () => {
   const {
@@ -90,9 +92,8 @@ const BlogDash = () => {
 
       if (data.length === 0) {
         showToast({
-          title: 'Error',
-          description: 'Error, no se encontró ninguna coincidencia.',
-          status: 'error'
+          description: 'No se encontró ningún post.',
+          status: 'info'
         });
         inputRef.current.value = '';
         return;
@@ -121,65 +122,17 @@ const BlogDash = () => {
     setImageFiles(files);
   };
 
-  const onSubmit = async (data) => {
-    if (!user) throw new Error('No estás logueado.');
-    if (imageFiles.length === 0) {
-      showToast({
-        title: 'Error',
-        description: 'Sube al menos una imagen',
-        status: 'error'
-      });
-      return;
-    }
-
-    const formData = new FormData();
-    formData.append('title', data.title);
-    formData.append('summary', data.summary);
-    formData.append('body', data.body);
-    formData.append('slug', data.slug);
-    formData.append('available', data.available);
-    formData.append('user', user._id);
-
-    imageFiles.forEach((file) => formData.append('image', file));
-
-    try {
-      setLoading((prev) => ({ ...prev, blogs: true }));
-      const url = selectedPost
-        ? `http://localhost:3000/api/v1/blogs/${selectedPost._id}`
-        : 'http://localhost:3000/api/v1/blogs';
-
-      const method = selectedPost ? 'PUT' : 'POST';
-
-      const res = await fetch(url, {
-        method,
-        credentials: 'include',
-        body: formData
-      });
-
-      if (!res.ok) throw new Error('Error creando/actualizando el post.');
-
-      reset();
-      setImageFiles([]);
-      setSelectedPost(null);
-      onCloseNewPost();
-      fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
-
-      showToast({
-        description: selectedPost
-          ? 'Post actualizado correctamente.'
-          : 'Post creado correctamente.',
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo guardar el post',
-        status: 'error'
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, blogs: false }));
-    }
-  };
+  const { onSubmit } = useCreateModForm({
+    user,
+    reset,
+    setImageFiles,
+    setSelectedItem: setSelectedPost,
+    onCloseNewItem: onCloseNewPost,
+    fetchResources,
+    setItems: setBlogs,
+    showToast,
+    setLoading
+  });
 
   const handleSwitch = async (postId, currentValue) => {
     try {
@@ -242,31 +195,16 @@ const BlogDash = () => {
             <Text>Posts totales</Text>
           </Flex>
         </Flex>
-        <Flex
-          bg='white'
-          w='600px'
-          p={2}
-          justify='space-between'
-          borderRadius='10px'
-        >
-          <InputGroup w='80%'>
-            <Input type='search' placeholder='Buscar post...' ref={inputRef} />
-            <Button ml={2} colorScheme='blue' onClick={handleSearch}>
-              Buscar
-            </Button>
-          </InputGroup>
-          <Button
-            bg='gray.400'
-            borderRadius='10px'
-            p={2}
-            _hover={{ bg: 'gray.200' }}
-            fontWeight='default'
-            cursor='pointer'
-            onClick={() => resetBlogs()}
-          >
-            Todos
-          </Button>
-        </Flex>
+        <SearchBox
+          inputRef={inputRef}
+          handleSearch={handleSearch}
+          placeholder='Buscar post...'
+          allButton={
+            <DashboardButton onAction={resetBlogs} w='100px'>
+              Todos
+            </DashboardButton>
+          }
+        />
       </Flex>
 
       <Flex bg='white' borderRadius='10px' p={5} direction='column' gap={2}>
@@ -295,7 +233,7 @@ const BlogDash = () => {
             </Button>
           </Flex>
 
-          <Grid templateColumns='repeat(4, 1fr)' gap='6'>
+          <Grid templateColumns='repeat(auto-fill, minmax(350px, 1fr))' gap='6'>
             {blogs.map((post) => {
               const bgPost = !post.available ? 'red.200' : 'white';
 
@@ -445,40 +383,33 @@ const BlogDash = () => {
           )}
         </Flex>
 
-        <CustomModal
+        <ConfirmDeleteModal
           isOpen={isOpen}
           onClose={() => {
             setSelectedPost(null);
             onClose();
           }}
-        >
-          <Flex direction='column' mt={8}>
-            <Text m={5}>
-              ¿Estás seguro de que quieres eliminar {selectedPost?.title}?
-            </Text>
-            <Flex justify='flex-end'>
-              <Button
-                onClick={() => {
-                  setSelectedPost(null);
-                  onClose();
-                }}
-                mr={3}
-              >
-                Cancelar
-              </Button>
-              <Button colorScheme='red' onClick={confirmDelete}>
-                Elimminar
-              </Button>
-            </Flex>
-          </Flex>
-        </CustomModal>
+          textQuestion={`¿Estás seguro de que quieres eliminar « ${selectedPost?.title} » ?`}
+          onAction={confirmDelete}
+        />
 
         <CustomModal isOpen={isOpenNewPost} onClose={onCloseNewPost} size='xl'>
           <Flex direction='column' align='center' mt={5}>
             <Heading textAlign='center' mb={3}>
               {selectedPost ? 'Modificar post' : 'Crear nuevo post'}
             </Heading>
-            <form id='new-post-form' onSubmit={handleSubmit(onSubmit)}>
+            <form
+              id='new-post-form'
+              onSubmit={handleSubmit((data) =>
+                onSubmit({
+                  data,
+                  imageFiles,
+                  target: 'blogs',
+                  selectedItem: selectedPost,
+                  targetText: 'Post'
+                })
+              )}
+            >
               <FormControl mb={4} isInvalid={errors.title}>
                 <FormLabel>Título</FormLabel>
                 <Input
