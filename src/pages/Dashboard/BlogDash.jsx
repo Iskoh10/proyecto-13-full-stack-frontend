@@ -4,21 +4,14 @@ import { useDashboard } from '../../Providers/DashboardContext';
 import {
   Box,
   Button,
-  Checkbox,
   Flex,
-  FormControl,
-  FormLabel,
   Grid,
   GridItem,
   Heading,
   Icon,
   Image,
-  Input,
-  ModalFooter,
-  SimpleGrid,
   Stack,
   Text,
-  Textarea,
   useDisclosure
 } from '@chakra-ui/react';
 import { GiNotebook } from 'react-icons/gi';
@@ -33,6 +26,7 @@ import DashboardButton from '../../components/DashboardButton/DashboardButton';
 import SearchBox from '../../components/SearchBox/SearchBox';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import useCreateModForm from '../../hooks/useCreateModForm';
+import CreateModFormModal from '../../components/CreateModFormModal/CreateModFormModal';
 
 const BlogDash = () => {
   const {
@@ -393,107 +387,60 @@ const BlogDash = () => {
           onAction={confirmDelete}
         />
 
-        <CustomModal isOpen={isOpenNewPost} onClose={onCloseNewPost} size='xl'>
-          <Flex direction='column' align='center' mt={5}>
-            <Heading textAlign='center' mb={3}>
-              {selectedPost ? 'Modificar post' : 'Crear nuevo post'}
-            </Heading>
-            <form
-              id='new-post-form'
-              onSubmit={handleSubmit((data) =>
-                onSubmit({
-                  data,
-                  imageFiles,
-                  target: 'blogs',
-                  selectedItem: selectedPost,
-                  targetText: 'Post'
-                })
-              )}
-            >
-              <FormControl mb={4} isInvalid={errors.title}>
-                <FormLabel>Título</FormLabel>
-                <Input
-                  placeholder='Título del post'
-                  {...register('title', {
-                    required: 'El título es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4} isInvalid={errors.slug}>
-                <FormLabel>Slug</FormLabel>
-                <Input
-                  placeholder='Escribe-el-slug-del-post'
-                  {...register('slug', {
-                    required: 'El slug es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4} isInvalid={errors.summary}>
-                <FormLabel>Resumen</FormLabel>
-                <Input
-                  placeholder='Resumen del post'
-                  {...register('summary', {
-                    required: 'El resumen es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4} isInvalid={errors.body}>
-                <FormLabel>Contenido</FormLabel>
-                <Textarea
-                  placeholder='Contenido principal'
-                  {...register('body', {
-                    required: 'El contenido es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Imágenes (máx. 3)</FormLabel>
-                <Input
-                  type='file'
-                  accept='image/*'
-                  multiple
-                  onChange={handleImagesChange}
-                />
-                {imageFiles.length > 0 && (
-                  <SimpleGrid columns={3} spacing={2} mt={2}>
-                    {imageFiles.map((file, index) => (
-                      <Image
-                        key={index}
-                        src={URL.createObjectURL(file)}
-                        alt={`preview-${index}`}
-                        borderRadius='md'
-                      />
-                    ))}
-                  </SimpleGrid>
-                )}
-              </FormControl>
-
-              <FormControl mb={4}>
-                <Checkbox {...register('available')}>Disponible</Checkbox>
-              </FormControl>
-
-              <ModalFooter>
-                <Button
-                  colorScheme={selectedPost ? 'red' : 'blue'}
-                  type='submit'
-                  form='new-post-form'
-                  isLoading={loading.blogs}
-                  loadingText={selectedPost ? 'modificando...' : 'Creando...'}
-                  isDisabled={loading.blogs}
-                >
-                  {selectedPost ? 'Modificar' : 'Crear'}
-                </Button>
-                <Button ml={3} onClick={onCloseNewPost}>
-                  Cancelar
-                </Button>
-              </ModalFooter>
-            </form>
-          </Flex>
-        </CustomModal>
+        <CreateModFormModal
+          isOpen={isOpenNewPost}
+          onClose={onCloseNewPost}
+          loading={loading.blogs}
+          selectedItem={selectedPost}
+          labelTarget='post'
+          onSubmit={handleSubmit((data) =>
+            onSubmit({
+              data,
+              imageFiles,
+              target: 'blogs',
+              selectedItem: selectedPost,
+              targetText: 'Post'
+            })
+          )}
+          errors={errors}
+          register={register}
+          imageFiles={imageFiles}
+          onImageAction={handleImagesChange}
+          fields={[
+            {
+              name: 'title',
+              label: 'Título del post',
+              type: 'text',
+              required: true
+            },
+            {
+              name: 'slug',
+              label: 'Slug-del-post',
+              type: 'text',
+              required: true
+            },
+            {
+              name: 'summary',
+              label: 'Resumen',
+              type: 'text',
+              required: true
+            },
+            {
+              name: 'body',
+              label: 'Contenido',
+              type: 'textarea',
+              required: true
+            },
+            {
+              name: 'images',
+              label: 'Imágenes (máx. 3)',
+              type: 'file',
+              multiple: true,
+              required: true
+            },
+            { name: 'available', label: 'Disponible', type: 'checkbox' }
+          ]}
+        />
       </Flex>
     </section>
   );

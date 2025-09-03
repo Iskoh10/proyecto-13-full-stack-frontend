@@ -1,9 +1,15 @@
 import { Flex, Image, Text } from '@chakra-ui/react';
 import { Link } from 'react-router-dom';
 
-const Logo = () => {
+const Logo = ({ direction = 'column', color = 'isc.secondary', w = '20%' }) => {
   return (
-    <Flex align='center' direction='column' gap='2' w='20%'>
+    <Flex
+      align='center'
+      direction={direction}
+      gap='2'
+      w={w}
+      display={{ base: 'none', md: 'block' }}
+    >
       <Link to='/'>
         <Image
           src='favicon.png'
@@ -14,7 +20,7 @@ const Logo = () => {
       <Text
         fontSize={{ base: 'sm', md: 'md', lg: 'xl' }}
         fontWeight='bold'
-        color='isc.secondary'
+        color={color}
       >
         La Panadería
       </Text>

@@ -58,6 +58,7 @@ const DetailsPostModal = ({
               bg='green.300'
               onClick={() => handleVote('blogs', 'like')}
               disabled={hasVote}
+              fontSize={{ base: '0.8rem', md: '1rem' }}
             >
               💚 Me gusta
             </Button>
@@ -65,6 +66,7 @@ const DetailsPostModal = ({
               bg='red.300'
               onClick={() => handleVote('blogs', 'dislike')}
               disabled={hasVote}
+              fontSize={{ base: '0.8rem', md: '1rem' }}
             >
               💔 No me gusta
             </Button>
@@ -76,7 +78,7 @@ const DetailsPostModal = ({
             p={5}
             mt={3}
           >
-            <Text fontSize='2rem'>Comentarios</Text>
+            <Text fontSize='clamp(0.8rem, 5vw,1rem)'>Comentarios</Text>
             <Stack mt={5} width='100%'>
               {selectedPost.comments.map((comment) => (
                 <Flex
@@ -86,18 +88,27 @@ const DetailsPostModal = ({
                   p={2}
                   borderBottom='1px solid gray'
                 >
-                  <Text fontSize='1rem'>{comment.text}</Text>
-                  <Text color='gray.400'>{comment.user.name}</Text>
+                  <Text fontSize={{ base: '0.8rem', md: '1rem' }}>
+                    {comment.text}
+                  </Text>
+                  <Text
+                    color='gray.400'
+                    fontSize={{ base: '0.8rem', md: '1rem' }}
+                  >
+                    {comment.user.name}
+                  </Text>
                 </Flex>
               ))}
 
               <Flex mt={3} gap={2}>
                 <Input
                   type='text'
+                  fontSize={{ base: '0.8rem', md: '1rem' }}
                   placeholder='Escribe un comentario...'
                   ref={commentRef}
                 />
                 <Button
+                  fontSize={{ base: '0.8rem', md: '1rem' }}
                   colorScheme='red'
                   onClick={handleAddComment}
                   disabled={loadingComment}

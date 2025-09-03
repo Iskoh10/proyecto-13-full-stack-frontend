@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
+import { Box, Flex, Icon, Text, useDisclosure } from '@chakra-ui/react';
 import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import { FaBox, FaBreadSlice, FaPlus } from 'react-icons/fa';
@@ -13,8 +13,8 @@ import InfoCard from '../../components/InfoCard/InfoCard';
 import SearchBox from '../../components/SearchBox/SearchBox';
 import DashboardButton from '../../components/DashboardButton/DashboardButton';
 import useCreateModForm from '../../hooks/useCreateModForm';
-import ProductFormModal from '../../components/ProductFormModal/ProductFormModal';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import CreateModFormModal from '../../components/CreateModFormModal/CreateModFormModal';
 
 const ProductsDash = () => {
   const {
@@ -354,10 +354,12 @@ const ProductsDash = () => {
               onAction={confirmDelete}
             />
 
-            <ProductFormModal
-              isOpenNewProduct={isOpenNewProduct}
-              onCloseNewProduct={onCloseNewProduct}
-              selectedProduct={selectedProduct}
+            <CreateModFormModal
+              isOpen={isOpenNewProduct}
+              onClose={onCloseNewProduct}
+              loading={loading.products}
+              selectedItem={selectedProduct}
+              labelTarget='producto'
               onSubmit={handleSubmit((data) =>
                 onSubmit({
                   data,
@@ -368,17 +370,54 @@ const ProductsDash = () => {
                   targetText: 'Producto'
                 })
               )}
-              handleSubmit={handleSubmit}
               errors={errors}
               register={register}
               imageFiles={imageFiles}
               typeProduct={typeProduct}
               handleSelect={handleSelect}
-              loading={loading}
               onImageAction={(e) => {
                 const file = e.target.files[0];
                 if (file) setImageFiles([file]);
               }}
+              fields={[
+                {
+                  name: 'nameProduct',
+                  label: 'Nombre del producto',
+                  type: 'text',
+                  required: true
+                },
+                {
+                  name: 'description',
+                  label: 'Descripción',
+                  type: 'text',
+                  required: true
+                },
+                {
+                  name: 'price',
+                  label: 'Precio',
+                  type: 'number',
+                  step: '0.01',
+                  required: true
+                },
+                {
+                  name: 'stock',
+                  label: 'Stock',
+                  type: 'number',
+                  required: true
+                },
+                {
+                  name: 'images',
+                  label: 'Imagen',
+                  type: 'file',
+                  required: true
+                },
+                { name: 'available', label: 'Disponible', type: 'checkbox' },
+                {
+                  name: 'typeProduct',
+                  label: 'Tipo de producto',
+                  type: 'selectMenu'
+                }
+              ]}
             />
           </Flex>
         </Flex>

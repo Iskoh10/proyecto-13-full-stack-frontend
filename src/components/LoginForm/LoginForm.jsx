@@ -73,8 +73,9 @@ const LoginForm = () => {
         onClick={onOpen}
         colorScheme='teal'
         position='absolute'
-        right='5%'
-        top='20%'
+        top={{ base: '58%', md: '20%' }}
+        left={{ base: '50%', md: '80%' }}
+        transform={{ base: 'translateX(-50%)', md: 'none' }}
       >
         ⬅️ Loguearse
       </Button>

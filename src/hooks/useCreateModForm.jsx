@@ -17,8 +17,6 @@ const useCreateModForm = ({
     selectedItem,
     targetText
   }) => {
-    console.log(selectedItem);
-
     const formData = new FormData();
     formData.append('description', data.description);
     formData.append('available', data.available);
@@ -35,9 +33,8 @@ const useCreateModForm = ({
       formData.append('image', imageFiles[0]);
       formData.append('eventDate', data.eventDate);
       formData.append('capacity', data.capacity);
-    } else {
+    } else if (target === 'blogs') {
       formData.append('title', data.title);
-      formData.append('image', imageFiles[0]);
       formData.append('summary', data.summary);
       formData.append('body', data.body);
       formData.append('slug', data.slug);

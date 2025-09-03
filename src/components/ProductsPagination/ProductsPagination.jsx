@@ -12,16 +12,18 @@ const ProductsPagination = ({ pagination, refreshProducts }) => {
       <Button
         onClick={() => refreshProducts(pagination.page - 1)}
         isDisabled={pagination.page === 1}
+        fontSize={{ base: '0.8rem', md: '1rem' }}
       >
         Anterior
       </Button>
-      <Text>
+      <Text fontSize='clamp(0.8rem, 5vw, 1rem)' textAlign='center'>
         Página {pagination.page} de {pagination.lastPage}
       </Text>
 
       <Button
         onClick={() => refreshProducts(pagination.page + 1)}
         isDisabled={pagination.page === pagination.lastPage}
+        fontSize={{ base: '0.8rem', md: '1rem' }}
       >
         Siguiente
       </Button>

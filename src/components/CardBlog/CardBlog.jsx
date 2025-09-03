@@ -5,11 +5,11 @@ const CardBlog = ({ setSelectedPost, post, onOpen }) => {
   return (
     <Flex
       key={post._id}
-      width='400px'
+      width={{ base: '320px', md: '400px' }}
       direction='column'
       align='center'
       justify='space-between'
-      ml={5}
+      ml={{ base: '0', md: '5' }}
       mt={5}
       p={2}
       gap={2}
@@ -39,7 +39,7 @@ const CardBlog = ({ setSelectedPost, post, onOpen }) => {
         {post.title}
       </Heading>
       <Text textAlign='center'>{post.summary}</Text>
-      <Flex align='center' w='350px' h='350px'>
+      <Flex align='center' w='100%' h='auto'>
         <Image src={post.image[0]} boxSize='100%' objectFit='cover' />
       </Flex>
       <Flex w='100%' justify='flex-end'>

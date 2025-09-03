@@ -1,27 +1,10 @@
-import {
-  Box,
-  Button,
-  Checkbox,
-  Flex,
-  FormControl,
-  FormLabel,
-  Heading,
-  Icon,
-  IconButton,
-  Image,
-  Input,
-  InputGroup,
-  ModalFooter,
-  Text,
-  useDisclosure
-} from '@chakra-ui/react';
+import { Box, Button, Flex, Text, useDisclosure } from '@chakra-ui/react';
 import HeadingDash from '../../components/HeadingDash/HeadingDash';
 import { useDashboard } from '../../Providers/DashboardContext';
 import { MdSchool } from 'react-icons/md';
 import { useRef, useState } from 'react';
 import Switcher from '../../components/Switcher/Switcher';
 import { FaPlus } from 'react-icons/fa';
-import CustomModal from '../../components/CustomModal/CustomModal';
 import formatDate from '../../utils/formatDate';
 import useCustomToast from '../../hooks/useCustomToast';
 import { useForm } from 'react-hook-form';
@@ -32,6 +15,7 @@ import DashboardButton from '../../components/DashboardButton/DashboardButton';
 import SearchBox from '../../components/SearchBox/SearchBox';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import useCreateModForm from '../../hooks/useCreateModForm';
+import CreateModFormModal from '../../components/CreateModFormModal/CreateModFormModal';
 
 const WorkshopsDash = () => {
   const {
@@ -104,7 +88,7 @@ const WorkshopsDash = () => {
         status: 'error'
       });
     } finally {
-      setLoading((prev) => ({ ...prev, blogs: false }));
+      setLoading((prev) => ({ ...prev, workshops: false }));
     }
   };
 
@@ -293,7 +277,7 @@ const WorkshopsDash = () => {
           onAction={confirmDelete}
         />
 
-        <CustomModal
+        <CreateModFormModal
           isOpen={isOpenNewWorkshop}
           onClose={() => {
             reset({
@@ -307,110 +291,49 @@ const WorkshopsDash = () => {
             setImageFiles([]);
             onCloseNewWorkshop();
           }}
-          size='xl'
-        >
-          <Flex direction='column' align='center' mt={5}>
-            <Heading textAlign='center' mb={3}>
-              {selectedWorkshop ? 'Modificar taller' : 'Crear nuevo taller'}
-            </Heading>
-            <form
-              id='new-workshop-form'
-              onSubmit={handleSubmit((data) =>
-                onSubmit({
-                  data,
-                  imageFiles,
-                  target: 'workshops',
-                  selectedItem: selectedWorkshop,
-                  targetText: 'Taller'
-                })
-              )}
-            >
-              <FormControl mb={4} isInvalid={errors.title}>
-                <FormLabel>Título</FormLabel>
-                <Input
-                  placeholder='Título del taller...'
-                  {...register('title', {
-                    required: 'El título es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4} isInvalid={errors.slug}>
-                <FormLabel>Descripción</FormLabel>
-                <Input
-                  placeholder='Descripción del taller...'
-                  {...register('description', {
-                    required: 'La descripción es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4} isInvalid={errors.summary}>
-                <FormLabel>Fecha del taller</FormLabel>
-                <Input
-                  type='datetime-local'
-                  placeholder='Fecha y hora del taller...'
-                  {...register('eventDate', {
-                    required: 'La fecha y hora es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4}>
-                <FormLabel>Imagen</FormLabel>
-                <Input
-                  type='file'
-                  accept='image/*'
-                  onChange={(e) => {
-                    const file = e.target.files[0];
-                    if (file) setImageFiles([file]);
-                  }}
-                />
-                {imageFiles.length > 0 && (
-                  <Image
-                    src={URL.createObjectURL(imageFiles[0])}
-                    alt='preview'
-                    borderRadius='md'
-                    boxSize='200px'
-                    objectFit='cover'
-                  />
-                )}
-              </FormControl>
-
-              <FormControl mb={4} isInvalid={errors.summary}>
-                <FormLabel>Capacidad</FormLabel>
-                <Input
-                  type='number'
-                  placeholder='Plazas disponibles...'
-                  {...register('capacity', {
-                    required: 'El numero  de plazas es obligatorio'
-                  })}
-                />
-              </FormControl>
-
-              <FormControl mb={4}>
-                <Checkbox {...register('available')}>Disponible</Checkbox>
-              </FormControl>
-
-              <ModalFooter>
-                <Button
-                  colorScheme={selectedWorkshop ? 'red' : 'blue'}
-                  type='submit'
-                  isLoading={loading.workshops}
-                  loadingText={
-                    selectedWorkshop ? 'Modificando...' : 'Creando...'
-                  }
-                  isDisabled={loading.workshops}
-                >
-                  {selectedWorkshop ? 'Modificar' : 'Crear'}
-                </Button>
-                <Button ml={3} onClick={onCloseNewWorkshop}>
-                  Cancelar
-                </Button>
-              </ModalFooter>
-            </form>
-          </Flex>
-        </CustomModal>
+          loading={loading.workshops}
+          selectedItem={selectedWorkshop}
+          labelTarget='taller'
+          onSubmit={handleSubmit((data) =>
+            onSubmit({
+              data,
+              imageFiles,
+              target: 'workshops',
+              selectedItem: selectedWorkshop,
+              targetText: 'Taller'
+            })
+          )}
+          errors={errors}
+          register={register}
+          imageFiles={imageFiles}
+          onImageAction={(e) => {
+            const file = e.target.files[0];
+            if (file) setImageFiles([file]);
+          }}
+          fields={[
+            { name: 'title', label: 'Título', type: 'text', required: true },
+            {
+              name: 'description',
+              label: 'Descripción',
+              type: 'text',
+              required: true
+            },
+            {
+              name: 'eventDate',
+              label: 'Fecha y hora del taller',
+              type: 'datetime-local',
+              required: true
+            },
+            { name: 'images', label: 'Imagen', type: 'file', required: true },
+            {
+              name: 'capacity',
+              label: 'Capacidad',
+              type: 'number',
+              required: true
+            },
+            { name: 'available', label: 'Disponible', type: 'checkbox' }
+          ]}
+        />
       </Flex>
     </section>
   );

@@ -10,8 +10,15 @@ import {
 import getAverageRating from '../../utils/getAverageRating';
 import Rating from '../Rating/Rating';
 import { AddToCartIcon } from '../Icons/Icons';
+import addToCart from '../../utils/cartUtils/addToCart';
 
-const CardProduct = ({ item, user, ratings, handleRatingChange }) => {
+const CardProduct = ({
+  item,
+  user,
+  ratings,
+  handleRatingChange,
+  handleCart
+}) => {
   return (
     <Flex
       className='product-card'

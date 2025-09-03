@@ -70,8 +70,9 @@ const RegisterForm = () => {
         onClick={onOpen}
         colorScheme='teal'
         position='absolute'
-        top='20%'
-        left='5%'
+        top={{ base: '52%', md: '20%' }}
+        left={{ base: '50%', md: '5%' }}
+        transform={{ base: 'translateX(-50%)', md: 'none' }}
       >
         Registrarse ➡️
       </Button>

@@ -121,13 +121,24 @@ const Profile = () => {
 
   return (
     <main className='profile flex-container'>
-      <Flex align='flex-start' direction='row' w='100%'>
+      <Flex
+        align='flex-start'
+        direction={{ base: 'column', md: 'row' }}
+        w='100%'
+      >
         <ProfileAside
           state={state}
           activeTab={activeTab}
           setActiveTab={setActiveTab}
         />
-        <Box flex='1' ml={6} bg='isc.accent' p={4} h='100svh'>
+        <Box
+          flex='1'
+          ml={{ base: '0', md: '6' }}
+          bg='isc.accent'
+          p={4}
+          w='100%'
+          minH='100svh'
+        >
           <Heading pb={4}>{`Bienvenido ${state.name}`}</Heading>
 
           {activeTab === 'perfil' && (

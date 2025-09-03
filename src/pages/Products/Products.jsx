@@ -92,7 +92,12 @@ const Products = () => {
   return (
     <main className='products'>
       {user?._id && (
-        <Flex justify='space-between' align='center' p={4}>
+        <Flex
+          justify={{ base: 'space-between' }}
+          align={{ base: 'flex-start', md: 'center' }}
+          p={4}
+          direction={{ base: 'column', md: 'row' }}
+        >
           <Flex align='center'>
             <Text mx={2}>Categoría:</Text>
             <MenuProductType />
@@ -126,6 +131,7 @@ const Products = () => {
               user={user}
               ratings={ratings}
               handleRatingChange={handleRatingChange}
+              handleCart={handleCart}
             />
           );
         })}

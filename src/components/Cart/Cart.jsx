@@ -121,8 +121,9 @@ const Cart = ({
         <Box
           position='absolute'
           top='100%'
-          right='0'
-          w='400px'
+          right={{ base: 'auto', md: '0' }}
+          left={{ base: '0', md: 'auto' }}
+          w={{ base: '300px', md: '400px' }}
           bg='white'
           border='1px solid'
           borderColor='gray.200'
@@ -156,6 +157,7 @@ const Cart = ({
                       alt={item.nameProduct}
                       boxSize='50px'
                       objectFit='cover'
+                      display={{ base: 'none', md: 'block' }}
                     />
                     <Box flex='1'>
                       <Text fontWeight='bold'>{item.nameProduct}</Text>

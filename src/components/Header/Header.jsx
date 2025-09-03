@@ -1,12 +1,14 @@
 import {
   Box,
   Button,
+  Divider,
   Drawer,
   DrawerBody,
   DrawerContent,
   DrawerOverlay,
   Flex,
   Spacer,
+  Text,
   useDisclosure,
   useMediaQuery
 } from '@chakra-ui/react';
@@ -35,9 +37,15 @@ const Header = () => {
         {isWideScreen ? (
           <NavBar user={user} />
         ) : (
-          <Button onClick={onOpen}>☰</Button>
+          <Button
+            onClick={(e) => {
+              e.stopPropagation();
+              onOpen();
+            }}
+          >
+            ☰
+          </Button>
         )}
-
         <Spacer />
         {user ? (
           <Button
@@ -59,11 +67,16 @@ const Header = () => {
         <DrawerOverlay />
         <DrawerContent>
           <DrawerBody>
+            <Flex>
+              <Logo direction='row' color='black' w='100%' />
+            </Flex>
+            <Divider />
             <NavBar
               user={user}
               flexDirection='column'
               gap={4}
               onClose={onClose}
+              isDrawer
             />
           </DrawerBody>
         </DrawerContent>

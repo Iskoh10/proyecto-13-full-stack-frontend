@@ -24,14 +24,19 @@ const DetailsWorkshopModal = ({
   loadingComment
 }) => {
   return (
-    <CustomModal isOpen={isOpen} onClose={onClose}>
+    <CustomModal isOpen={isOpen} onClose={onClose} size='xl'>
       <Flex direction='column' align='center' mt={5}>
         <Heading textAlign='center' mb={4}>
           {selectedWorkshop.title}
         </Heading>
         <Text>{selectedWorkshop.description}</Text>
-        <Flex align='center' w='350px' h='350px'>
-          <Image src={selectedWorkshop.image} w='100%' objectFit='contain' />
+        <Flex align='center' w='100%' h='auto'>
+          <Image
+            src={selectedWorkshop.image}
+            w='90%'
+            objectFit='contain'
+            mx='auto'
+          />
         </Flex>
         {user ? (
           <Flex direction='column' mt={5}>
@@ -50,11 +55,13 @@ const DetailsWorkshopModal = ({
                 bg='green.300'
                 onClick={() => handleVote(selectedWorkshop._id, 'like')}
                 disabled={hasVote}
+                fontSize={{ base: '0.8rem', md: '1rem' }}
               >
                 💚 Me gusta
               </Button>
               <Button
                 bg='red.300'
+                fontSize={{ base: '0.8rem', md: '1rem' }}
                 onClick={() => handleVote(selectedWorkshop._id, 'dislike')}
                 disabled={hasVote}
               >
@@ -64,6 +71,7 @@ const DetailsWorkshopModal = ({
             <Flex mt={5}>
               <Button
                 colorScheme={isAttending ? 'red' : 'blue'}
+                fontSize={{ base: '0.8rem', md: '1rem' }}
                 onClick={() =>
                   handleAttend(
                     selectedWorkshop._id,
@@ -85,7 +93,7 @@ const DetailsWorkshopModal = ({
             p={5}
             mt={3}
           >
-            <Text width='70%' fontSize='2rem'>
+            <Text width='70%' fontSize='clamp(1rem, 5vw,1.5rem)'>
               Comentarios
             </Text>
             <Stack mt={5} width='100%'>
@@ -97,13 +105,21 @@ const DetailsWorkshopModal = ({
                   p={2}
                   borderBottom='1px solid gray'
                 >
-                  <Text fontSize='1rem'>{comment.text}</Text>
-                  <Text color='gray.400'>{comment.user.name}</Text>
+                  <Text fontSize={{ base: '0.8rem', md: '1rem' }}>
+                    {comment.text}
+                  </Text>
+                  <Text
+                    color='gray.400'
+                    fontSize={{ base: '0.8rem', md: '1rem' }}
+                  >
+                    {comment.user.name}
+                  </Text>
                 </Flex>
               ))}
 
               <Flex mt={3} gap={2}>
                 <Input
+                  fontSize={{ base: '0.8rem', md: '1rem' }}
                   type='text'
                   placeholder='Escribe un comentario...'
                   ref={commentRef}
@@ -112,6 +128,7 @@ const DetailsWorkshopModal = ({
                   colorScheme='red'
                   onClick={handleAddComment}
                   disabled={loadingComment}
+                  fontSize={{ base: '0.8rem', md: '1rem' }}
                 >
                   {loadingComment ? 'Enviando...' : 'Comentar'}
                 </Button>

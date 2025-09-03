@@ -4,8 +4,8 @@ const ProfileAside = ({ state, activeTab, setActiveTab }) => {
   return (
     <Box
       as='aside'
-      w='250px'
-      h='100svh'
+      w={{ base: '100%', md: '250px' }}
+      h={{ base: '200px', md: '100svh' }}
       p={4}
       bg='gray.100'
       border='1px solid'

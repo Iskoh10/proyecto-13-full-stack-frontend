@@ -1,3 +1,4 @@
+import { Flex } from '@chakra-ui/react';
 import InfoForm from '../../components/InfoForm/InfoForm';
 import LoginForm from '../../components/LoginForm/LoginForm';
 import RegisterForm from '../../components/RegisterForm/RegisterForm';

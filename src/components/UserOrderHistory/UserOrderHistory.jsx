@@ -12,7 +12,12 @@ const UserOrderHistory = ({
   onClose
 }) => {
   return (
-    <Flex height='400px' overflowY='auto' direction='column' gap={2}>
+    <Flex
+      height={{ base: '600px', md: '400px' }}
+      overflowY='auto'
+      direction='column'
+      gap={2}
+    >
       {orders
         .slice()
         .reverse()
@@ -34,6 +39,7 @@ const UserOrderHistory = ({
             borderColor='gray.400'
             borderRadius='10px'
             cursor='pointer'
+            align='center'
             _hover={{
               bg:
                 order.status === 'pending'
@@ -51,8 +57,10 @@ const UserOrderHistory = ({
             }}
           >
             <Text>{formatDate(order.deliveryDate, true)}</Text>
-            <Text>Total: €{order.totalPrice.toFixed(2)}</Text>
-            <Text>{order.items.length} productos</Text>
+            <Text textAlign='center'>
+              Total: €{order.totalPrice.toFixed(2)}
+            </Text>
+            <Text textAlign='center'>{order.items.length} productos</Text>
           </Flex>
         ))}
       <CustomModal isOpen={isOpen} onClose={onClose}>

@@ -58,7 +58,7 @@ const PaymentSuccess = () => {
   return (
     <main className='payment-success'>
       <Flex align='center' justify='center' direction='column'>
-        <Text fontSize='2rem' p={4}>
+        <Text fontSize='clamp(1rem, 1.5rem, 2rem)' p={4}>
           Pago Realizado ✅
         </Text>
         <Ticket order={order} />

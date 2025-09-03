@@ -14,7 +14,7 @@ const UpdateUserForm = ({
   return (
     <Flex
       as='form'
-      w='30%'
+      w={{ base: '100%', md: '400px' }}
       direction='column'
       align='center'
       p={5}

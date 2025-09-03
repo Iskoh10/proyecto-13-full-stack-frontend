@@ -19,9 +19,9 @@ const Workshops = () => {
   const [loadingComment, setLoadingComment] = useState(false);
   const { user } = useUser();
   const { handleVote, hasVote } = useVote({
-    setWorkshops,
-    selectedWorkshop,
-    setSelectedWorkshop,
+    setItems: setWorkshops,
+    selectedItem: selectedWorkshop,
+    setSelectedItem: setSelectedWorkshop,
     showToast,
     user
   });

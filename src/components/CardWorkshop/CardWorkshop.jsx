@@ -5,9 +5,9 @@ const CardWorkshop = ({ workshop, setSelectedWorkshop, onOpen, day, time }) => {
     <Flex
       direction='column'
       p={4}
-      ml={5}
+      ml={{ base: '0', md: '5' }}
       mt={5}
-      width='400px'
+      width={{ base: '320px', md: '400px' }}
       border='1px solid'
       borderRadius='10px'
       borderColor='gray.400'
@@ -26,13 +26,13 @@ const CardWorkshop = ({ workshop, setSelectedWorkshop, onOpen, day, time }) => {
         setSelectedWorkshop(workshop), onOpen();
       }}
     >
-      <Heading size='md' textAlign='center'>
+      <Heading size='md' textAlign='center' mb={4}>
         {workshop.title}
       </Heading>
-      <Text textAlign='center' mb={5}>
+      <Text textAlign='center' fontSize='clamp(0.8rem, 5vw, 1rem)' mb={5}>
         {workshop.description}
       </Text>
-      <Flex w='350px' h='350px' align='center' borderRadius='10px'>
+      <Flex w='100%' h='auto' align='center' borderRadius='10px'>
         <Image src={workshop.image} w='100%' objectFit='contain' />
       </Flex>
       <Flex direction='column'>
