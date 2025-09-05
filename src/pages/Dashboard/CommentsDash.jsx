@@ -15,50 +15,23 @@ import DeleteButton from '../../components/DeleteButton/DeleteButton';
 import DashboardButton from '../../components/DashboardButton/DashboardButton';
 import SearchBox from '../../components/SearchBox/SearchBox';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import useSearchResource from '../../hooks/useSearchResource';
 
 const CommentsDash = () => {
-  const { comments, setComments, fetchResources, deleteResources } =
+  const { comments, setComments, setLoading, fetchResources, deleteResources } =
     useDashboard();
   const [selectedComment, setSelectedComment] = useState(null);
   const inputRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const { showToast } = useCustomToast();
 
-  const handleSearch = async () => {
-    const search = inputRef.current.value;
-    if (!search.trim()) return;
-
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/comments/filter/${search}`,
-        {
-          credentials: 'include'
-        }
-      );
-
-      if (!res.ok) throw new Error('Error en la búsqueda.');
-      const data = await res.json();
-
-      if (data.length === 0) {
-        showToast({
-          description: 'No se encontró ningún comentario.',
-          status: 'info'
-        });
-        inputRef.current.value = '';
-        return;
-      }
-
-      setComments(data);
-      inputRef.current.value = '';
-    } catch (error) {
-      inputRef.current.value = '';
-      showToast({
-        title: 'Error',
-        description: 'Error en la búsqueda.',
-        status: 'error'
-      });
-    }
-  };
+  const { handleSearch } = useSearchResource({
+    inputRef,
+    setLoading,
+    resource: 'comments',
+    setItems: setComments,
+    showToast
+  });
 
   const resetComments = () => {
     fetchResources(

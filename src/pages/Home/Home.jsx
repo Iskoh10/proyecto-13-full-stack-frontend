@@ -1,4 +1,4 @@
-import { Box, Heading, Tag, useMediaQuery } from '@chakra-ui/react';
+import { Box, Heading, useMediaQuery } from '@chakra-ui/react';
 import './Home.css';
 import Parallax from '../../components/Parallax/Parallax';
 import TagItem from '../../components/TagItem/TagItem';

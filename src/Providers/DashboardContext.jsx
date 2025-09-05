@@ -51,6 +51,7 @@ export const DashboardProvider = ({ children }) => {
       if (!res.ok) throw new Error(`Error al obtener ${key}`);
 
       const data = await res.json();
+
       setter(data);
     } catch (error) {
       showToast({

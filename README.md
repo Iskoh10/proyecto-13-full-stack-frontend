@@ -33,12 +33,8 @@ La app permite:
 
 ## Funcionalidades en construcción ⚠️
 
-Actualmente, las siguientes funcionalidades aún no están implementadas del todo, estoy en ello:
+Actualmente, las siguientes funcionalidades aún no están implementadas, estoy en ello:
 
-- Hace falta abstraer funcionalidades (por ejemplo las del carrito utilizando useReducer).
-- Optimizar para que haya menos re-renderizaciones.
-- Implementar el responsive, será una app de escritorio, y versiones con menos funcionalidad en movil o tablet.
-- Mejorar el UI.
 - Funcionalidad del dashboard:
   - Idea a futuro implementar un calendario de entrega (drag & drop) de los pedidos.
   - Idea a futuro implementar las graficas para visualizar las ventas con distintos filtros (ej: último mes, últimos 6 meses o último año), poder visualizar las ventas de un producto seleccionado, ver fluctuaciones a lo largo del tiempo, etc.

@@ -16,6 +16,8 @@ import SearchBox from '../../components/SearchBox/SearchBox';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import useCreateModForm from '../../hooks/useCreateModForm';
 import CreateModFormModal from '../../components/CreateModFormModal/CreateModFormModal';
+import useSwitchAvailability from '../../hooks/useSwitchAvailability';
+import useSearchResource from '../../hooks/useSearchResource';
 
 const WorkshopsDash = () => {
   const {
@@ -52,45 +54,13 @@ const WorkshopsDash = () => {
   const { showToast } = useCustomToast();
   const [imageFiles, setImageFiles] = useState([]);
 
-  const handleSearch = async () => {
-    const search = inputRef.current.value;
-
-    if (!search.trim()) return;
-
-    try {
-      setLoading((prev) => ({ ...prev, workshops: true }));
-      const res = await fetch(
-        `http://localhost:3000/api/v1/workshops/filter/${search}`,
-        {
-          credentials: 'include'
-        }
-      );
-
-      if (!res.ok) throw new Error('Error en búsqueda.');
-      const data = await res.json();
-
-      if (data.length === 0) {
-        showToast({
-          description: 'No se encontró ningún taller.',
-          status: 'info'
-        });
-        inputRef.current.value = '';
-        return;
-      }
-
-      setWorkshops(data);
-      inputRef.current.value = '';
-    } catch (error) {
-      inputRef.current.value = '';
-      showToast({
-        title: 'Error',
-        description: 'Error en la búsqueda.',
-        status: 'error'
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, workshops: false }));
-    }
-  };
+  const { handleSearch } = useSearchResource({
+    inputRef,
+    setLoading,
+    resource: 'workshops',
+    setItems: setWorkshops,
+    showToast
+  });
 
   const resetWorkshops = () => {
     fetchResources(
@@ -112,40 +82,11 @@ const WorkshopsDash = () => {
     setLoading
   });
 
-  const handleSwitch = async (workshopId, currentValue) => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/workshops/${workshopId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ available: !currentValue })
-        }
-      );
-
-      if (!res.ok) throw new Error('Error en la actualización.');
-      const data = await res.json();
-
-      setWorkshops((prev) =>
-        prev.map((p) =>
-          p._id === workshopId ? { ...p, available: !p.available } : p
-        )
-      );
-
-      showToast({
-        title: 'Éxito',
-        description: 'Disponibilidad actualizada.',
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo completar la acción.',
-        status: 'error'
-      });
-    }
-  };
+  const { handleSwitch } = useSwitchAvailability({
+    resource: 'workshops',
+    setItems: setWorkshops,
+    showToast
+  });
 
   const confirmDelete = () => {
     deleteResources('workshops', selectedWorkshop._id, setWorkshops);

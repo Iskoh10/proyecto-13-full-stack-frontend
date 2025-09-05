@@ -8,7 +8,6 @@ import {
   DrawerOverlay,
   Flex,
   Spacer,
-  Text,
   useDisclosure,
   useMediaQuery
 } from '@chakra-ui/react';

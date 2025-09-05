@@ -8,33 +8,28 @@ import SearchBox from '../../components/SearchBox/SearchBox';
 import DeleteButton from '../../components/DeleteButton/DeleteButton';
 import DashboardButton from '../../components/DashboardButton/DashboardButton';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
+import useSearchResource from '../../hooks/useSearchResource';
 
 const Users = () => {
-  const { users, setUsers, fetchResources, deleteResources } = useDashboard();
+  const {
+    users,
+    setUsers,
+    setLoading,
+    fetchResources,
+    deleteResources,
+    showToast
+  } = useDashboard();
   const inputRef = useRef();
   const { isOpen, onOpen, onClose } = useDisclosure();
   const [selectedUser, setSelectedUser] = useState(null);
 
-  const handleSearch = async () => {
-    const search = inputRef.current.value;
-    if (!search.trim()) return;
-
-    fetchResources(
-      `http://localhost:3000/api/v1/users/by-name/${search}`,
-      setUsers,
-      'users'
-    );
-
-    // if (data.length === 0) {
-    //     showToast({
-    //       description: 'No se encontró ningún usuario.',
-    //       status: 'info'
-    //     });
-    //     inputRef.current.value = '';
-    //     return;
-    //   }
-    inputRef.current.value = '';
-  };
+  const { handleSearch } = useSearchResource({
+    inputRef,
+    setLoading,
+    resource: 'users',
+    setItems: setUsers,
+    showToast
+  });
 
   const handleReloadUsers = () => {
     fetchResources('http://localhost:3000/api/v1/users', setUsers, 'users');

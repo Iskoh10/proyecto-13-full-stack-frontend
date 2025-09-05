@@ -1,7 +1,7 @@
 import './Dashboard.css';
 import { Box, Button, Flex, Heading, useToken, VStack } from '@chakra-ui/react';
 import { useUser } from '../../Providers/UserContext';
-import { Link, Route, Routes, useNavigate } from 'react-router-dom';
+import { Route, Routes, useNavigate } from 'react-router-dom';
 import { useState } from 'react';
 import { FiPower } from 'react-icons/fi';
 import Users from './Users';
@@ -13,6 +13,7 @@ import OrdersDash from './OrdersDash';
 import Statistics from './Statistics';
 import MainDashboard from './MainDashboard';
 import { DashboardProvider } from '../../Providers/DashboardContext.jsx';
+import dashboardRoutes from '../../constants/dashboardRoutes.js';
 
 const Dashboard = () => {
   const navigate = useNavigate();
@@ -121,18 +122,8 @@ const Dashboard = () => {
                       }
                       onClick={() => {
                         setActiveBtn(item);
-                        if (item === 'Dashboard') navigate('/dashboard');
-                        if (item === 'Usuarios') navigate('/dashboard/users');
-                        if (item === 'Productos')
-                          navigate('/dashboard/products');
-                        if (item === 'Talleres')
-                          navigate('/dashboard/workshops');
-                        if (item === 'Blog') navigate('/dashboard/blog');
-                        if (item === 'Comentarios')
-                          navigate('/dashboard/comments');
-                        if (item === 'Pedidos') navigate('/dashboard/orders');
-                        if (item === 'Estadísticas')
-                          navigate('/dashboard/statistics');
+                        const path = dashboardRoutes[item];
+                        if (path) navigate(path);
                       }}
                     >
                       {item}

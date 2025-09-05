@@ -15,6 +15,8 @@ import DashboardButton from '../../components/DashboardButton/DashboardButton';
 import useCreateModForm from '../../hooks/useCreateModForm';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import CreateModFormModal from '../../components/CreateModFormModal/CreateModFormModal';
+import useSwitchAvailability from '../../hooks/useSwitchAvailability';
+import useSearchResource from '../../hooks/useSearchResource';
 
 const ProductsDash = () => {
   const {
@@ -53,46 +55,13 @@ const ProductsDash = () => {
   const [imageFiles, setImageFiles] = useState([]);
   const [typeProduct, setTypeProduct] = useState('');
 
-  const handleSearch = async () => {
-    const search = inputRef.current.value.trim();
-    if (!search) return;
-
-    const url = new URL('http://localhost:3000/api/v1/products/filter');
-
-    if (!isNaN(search)) {
-      url.searchParams.append('price', search);
-    } else {
-      url.searchParams.append('nameProduct', search);
-    }
-
-    try {
-      setLoading((prev) => ({ ...prev, products: true }));
-
-      const res = await fetch(url.toString(), { credentials: 'include' });
-      const data = await res.json();
-
-      if (!data.products.length) {
-        showToast({
-          description: 'No se encontró ningún producto',
-          status: 'info'
-        });
-        inputRef.current.value = '';
-        return;
-      }
-
-      setProducts(data);
-      inputRef.current.value = '';
-    } catch (error) {
-      inputRef.current.value = '';
-      showToast({
-        title: 'Error',
-        description: 'Error en la búsqueda.',
-        status: 'error'
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, products: false }));
-    }
-  };
+  const { handleSearch } = useSearchResource({
+    inputRef,
+    setLoading,
+    resource: 'products',
+    setItems: setProducts,
+    showToast
+  });
 
   const handleSelect = (value) => {
     setTypeProduct(value);
@@ -110,44 +79,11 @@ const ProductsDash = () => {
     setLoading
   });
 
-  const handleSwitch = async (productId, currentValue) => {
-    try {
-      const res = await fetch(
-        `http://localhost:3000/api/v1/products/${productId}`,
-        {
-          method: 'PUT',
-          headers: { 'Content-Type': 'application/json' },
-          credentials: 'include',
-          body: JSON.stringify({ available: !currentValue })
-        }
-      );
-
-      if (!res.ok) {
-        throw new Error('Error en la actualización.');
-      }
-
-      const data = await res.json();
-
-      setProducts((prev) => ({
-        ...prev,
-        products: prev.products.map((p) =>
-          p._id === productId ? { ...p, available: !p.available } : p
-        )
-      }));
-
-      showToast({
-        title: 'Éxito',
-        description: 'Disponibilidad actualizada.',
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo completar la acción.',
-        status: 'error'
-      });
-    }
-  };
+  const { handleSwitch } = useSwitchAvailability({
+    resource: 'products',
+    setItems: setProducts,
+    showToast
+  });
 
   const confirmDelete = () => {
     deleteResources('products', selectedProduct._id, setProducts);
@@ -311,7 +247,7 @@ const ProductsDash = () => {
                       description: product.description,
                       price: product.price,
                       stock: product.stock,
-                      available: true
+                      available: product.available
                     });
                     setImageFiles([]);
                     onOpenNewProduct();

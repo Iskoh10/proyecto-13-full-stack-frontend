@@ -1,4 +1,3 @@
-import React, { Children, useEffect, useRef } from 'react';
 import { useUser } from '../../Providers/UserContext';
 import { Spinner } from '@chakra-ui/react';
 import { Navigate } from 'react-router-dom';

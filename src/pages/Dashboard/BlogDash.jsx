@@ -27,6 +27,8 @@ import SearchBox from '../../components/SearchBox/SearchBox';
 import ConfirmDeleteModal from '../../components/ConfirmDeleteModal/ConfirmDeleteModal';
 import useCreateModForm from '../../hooks/useCreateModForm';
 import CreateModFormModal from '../../components/CreateModFormModal/CreateModFormModal';
+import useSwitchAvailability from '../../hooks/useSwitchAvailability';
+import useSearchResource from '../../hooks/useSearchResource';
 
 const BlogDash = () => {
   const {
@@ -68,44 +70,13 @@ const BlogDash = () => {
   });
   const [imageFiles, setImageFiles] = useState([]);
 
-  const handleSearch = async () => {
-    const search = inputRef.current.value;
-    if (!search.trim()) return;
-
-    try {
-      setLoading((prev) => ({ ...prev, blogs: true }));
-      const res = await fetch(
-        `http://localhost:3000/api/v1/blogs/filter/${search}`,
-        {
-          credentials: 'include'
-        }
-      );
-
-      if (!res.ok) throw new Error('Error en la búsqueda');
-      const data = await res.json();
-
-      if (data.length === 0) {
-        showToast({
-          description: 'No se encontró ningún post.',
-          status: 'info'
-        });
-        inputRef.current.value = '';
-        return;
-      }
-
-      setBlogs(data);
-      inputRef.current.value = '';
-    } catch (error) {
-      inputRef.current.value = '';
-      showToast({
-        title: 'Error',
-        description: 'Error en la búsqueda.',
-        status: 'error'
-      });
-    } finally {
-      setLoading((prev) => ({ ...prev, blogs: false }));
-    }
-  };
+  const { handleSearch } = useSearchResource({
+    inputRef,
+    setLoading,
+    resource: 'blogs',
+    setItems: setBlogs,
+    showToast
+  });
 
   const resetBlogs = () => {
     fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
@@ -128,40 +99,11 @@ const BlogDash = () => {
     setLoading
   });
 
-  const handleSwitch = async (postId, currentValue) => {
-    try {
-      const res = await fetch(`http://localhost:3000/api/v1/blogs/${postId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify({ available: !currentValue })
-      });
-
-      if (!res.ok) {
-        throw new Error('Error en la actualización.');
-      }
-
-      const data = await res.json();
-
-      setBlogs((prev) =>
-        prev.map((p) =>
-          p._id === postId ? { ...p, available: !p.available } : p
-        )
-      );
-
-      showToast({
-        title: 'Éxito',
-        description: 'Disponibilidad actualizada.',
-        status: 'success'
-      });
-    } catch (error) {
-      showToast({
-        title: 'Error',
-        description: 'No se pudo completar la acción.',
-        status: 'error'
-      });
-    }
-  };
+  const { handleSwitch } = useSwitchAvailability({
+    resource: 'blogs',
+    setItems: setBlogs,
+    showToast
+  });
 
   const confirmDelete = () => {
     deleteResources('blogs', selectedPost._id, setBlogs);
