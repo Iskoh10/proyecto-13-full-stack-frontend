@@ -67,7 +67,7 @@ const Cart = ({
     setLoading(true);
     try {
       const res = await fetch(
-        'http://localhost:3000/api/payments/checkout-session',
+        `${import.meta.env.VITE_BACKEND_URL}/api/payments/checkout-session`,
         {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -75,8 +75,8 @@ const Cart = ({
             cart: items,
             email: user?.email,
             notes: notes,
-            successUrl: 'http://localhost:5173/success',
-            cancelUrl: 'http://localhost:5173/cancel'
+            successUrl: `${import.meta.env.VITE_FRONTEND_URL}/success`,
+            cancelUrl: `${import.meta.env.VITE_FRONTEND_URL}/cancel`
           })
         }
       );

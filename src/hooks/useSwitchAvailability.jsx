@@ -2,7 +2,7 @@ const useSwitchAvailability = ({ resource, setItems, showToast }) => {
   const handleSwitch = async (itemId, currentValue) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/v1/${resource}/${itemId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/${resource}/${itemId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

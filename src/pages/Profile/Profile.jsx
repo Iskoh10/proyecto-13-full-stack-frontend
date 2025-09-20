@@ -40,9 +40,12 @@ const Profile = () => {
   useEffect(() => {
     const fetchUser = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/v1/auth/me', {
-          credentials: 'include'
-        });
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/me`,
+          {
+            credentials: 'include'
+          }
+        );
         if (!res.ok) throw new Error('No se pudo cargar el usuario');
         const data = await res.json();
         setUser(data.user);
@@ -69,7 +72,7 @@ const Profile = () => {
     const fetchOrders = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/v1/orders/my-orders`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/orders/my-orders`,
           {
             method: 'GET',
             credentials: 'include'

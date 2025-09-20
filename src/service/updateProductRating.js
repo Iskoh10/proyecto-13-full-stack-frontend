@@ -1,6 +1,6 @@
 const updateProductRating = async (productId, value) => {
   const res = await fetch(
-    `http://localhost:3000/api/v1/products/${productId}`,
+    `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/${productId}`,
     {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },

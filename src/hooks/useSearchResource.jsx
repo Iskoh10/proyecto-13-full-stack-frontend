@@ -15,17 +15,23 @@ const useSearchResource = ({
       let url;
 
       if (resource === 'products') {
-        url = new URL('http://localhost:3000/api/v1/products/filter');
+        url = new URL(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products/filter`
+        );
         if (!isNaN(search)) {
           url.searchParams.append('price', search);
         } else {
           url.searchParams.append('nameProduct', search);
         }
       } else if (resource === 'users') {
-        url = new URL(`http://localhost:3000/api/v1/users/by-name/${search}`);
+        url = new URL(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/by-name/${search}`
+        );
       } else {
         url = new URL(
-          `http://localhost:3000/api/v1/${resource}/filter/${search}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/${resource}/filter/${search}`
         );
       }
 

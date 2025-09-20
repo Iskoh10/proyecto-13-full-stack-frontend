@@ -22,7 +22,9 @@ const Blog = () => {
     setLoading(true);
     const fetchBlogs = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/v1/blogs');
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/blogs`
+        );
 
         if (!res.ok) {
           throw new Error('Error al obtener los posts');

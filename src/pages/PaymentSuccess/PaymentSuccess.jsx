@@ -24,7 +24,7 @@ const PaymentSuccess = () => {
     const fetchOrder = async () => {
       try {
         const res = await fetch(
-          `http://localhost:3000/api/v1/orders/${orderId}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/orders/${orderId}`,
           {
             method: 'GET',
             headers: {

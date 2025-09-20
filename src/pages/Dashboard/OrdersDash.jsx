@@ -32,7 +32,7 @@ const OrdersDash = () => {
   const handleChangeStatus = async (orderId, newStatus) => {
     try {
       const res = await fetch(
-        `http://localhost:3000/api/v1/orders/${orderId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/orders/${orderId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },
@@ -45,7 +45,7 @@ const OrdersDash = () => {
       const updatedOrder = await res.json();
 
       fetchResources(
-        'http://localhost:3000/api/v1/orders',
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/orders`,
         setOrders,
         'orders'
       );
@@ -63,12 +63,12 @@ const OrdersDash = () => {
       let res;
 
       if (status === 'allOrders') {
-        res = await fetch('http://localhost:3000/api/v1/orders', {
+        res = await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/orders`, {
           credentials: 'include'
         });
       } else {
         res = await fetch(
-          `http://localhost:3000/api/v1/orders/filter/${status}`,
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/orders/filter/${status}`,
           {
             credentials: 'include'
           }

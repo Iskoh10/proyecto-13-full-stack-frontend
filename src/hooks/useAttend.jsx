@@ -12,7 +12,7 @@ const useAttend = ({
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/v1/workshops/${workshopId}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/workshops/${workshopId}`,
         {
           method: 'PUT',
           headers: { 'Content-Type': 'application/json' },

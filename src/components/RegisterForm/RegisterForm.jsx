@@ -33,19 +33,25 @@ const RegisterForm = () => {
 
   const onSubmit = async (data) => {
     try {
-      const res = await fetch('http://localhost:3000/api/v1/users/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        credentials: 'include',
-        body: JSON.stringify(data)
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/register`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
+          body: JSON.stringify(data)
+        }
+      );
 
       const result = await res.json();
       if (!res.ok) throw new Error(result.message || 'Error al registrarse');
 
-      const authMeRes = await fetch('http://localhost:3000/api/v1/auth/me', {
-        credentials: 'include'
-      });
+      const authMeRes = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/me`,
+        {
+          credentials: 'include'
+        }
+      );
 
       if (!authMeRes.ok)
         throw new Error('Error obteniendo usuario tras registro');

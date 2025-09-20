@@ -32,7 +32,11 @@ const Users = () => {
   });
 
   const handleReloadUsers = () => {
-    fetchResources('http://localhost:3000/api/v1/users', setUsers, 'users');
+    fetchResources(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/users`,
+      setUsers,
+      'users'
+    );
   };
 
   const confirmDelete = () => {

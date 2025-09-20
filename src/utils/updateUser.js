@@ -9,12 +9,15 @@ const updateUser = async ({
   dispatch({ type: 'UPDATE_FIELD', field, value });
 
   try {
-    const res = await fetch(`http://localhost:3000/api/v1/users/${user._id}`, {
-      method: 'PUT',
-      headers: { 'Content-Type': 'application/json' },
-      credentials: 'include',
-      body: JSON.stringify({ [field]: value })
-    });
+    const res = await fetch(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/users/${user._id}`,
+      {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ [field]: value })
+      }
+    );
 
     if (!res.ok) throw new Error('No se pudo actualizar');
 

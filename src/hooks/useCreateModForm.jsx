@@ -44,7 +44,7 @@ const useCreateModForm = ({
 
     try {
       setLoading((prev) => ({ ...prev, [target]: true }));
-      const API_URL = 'http://localhost:3000/api/v1';
+      const API_URL = `${import.meta.env.VITE_BACKEND_URL}/api/v1`;
       const url = selectedItem
         ? `${API_URL}/${target}/${selectedItem._id}`
         : `${API_URL}/${target}`;
@@ -65,7 +65,7 @@ const useCreateModForm = ({
       setSelectedItem(null);
       onCloseNewItem();
       fetchResources(
-        `http://localhost:3000/api/v1/${target}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/${target}`,
         setItems,
         target
       );

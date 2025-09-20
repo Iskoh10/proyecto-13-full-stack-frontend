@@ -16,18 +16,21 @@ const useAddComment = ({
 
     setLoadingComment(true);
     try {
-      const res = await fetch('http://localhost:3000/api/v1/comments', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        credentials: 'include',
-        body: JSON.stringify({
-          text,
-          target: target,
-          eventId: selectedItem._id
-        })
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/comments`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          credentials: 'include',
+          body: JSON.stringify({
+            text,
+            target: target,
+            eventId: selectedItem._id
+          })
+        }
+      );
 
       if (!res.ok) throw new Error('Error al crear el comentario');
 

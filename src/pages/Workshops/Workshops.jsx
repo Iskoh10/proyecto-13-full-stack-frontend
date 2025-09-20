@@ -46,7 +46,9 @@ const Workshops = () => {
     setLoading(true);
     const fetchWorkshop = async () => {
       try {
-        const res = await fetch('http://localhost:3000/api/v1/workshops');
+        const res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/workshops`
+        );
 
         if (!res.ok) {
           throw new Error('No se pudo recuperar los talleres');

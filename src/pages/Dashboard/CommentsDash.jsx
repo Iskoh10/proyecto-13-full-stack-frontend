@@ -35,7 +35,7 @@ const CommentsDash = () => {
 
   const resetComments = () => {
     fetchResources(
-      'http://localhost:3000/api/v1/comments',
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/comments`,
       setComments,
       'comments'
     );

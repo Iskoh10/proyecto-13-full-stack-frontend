@@ -64,7 +64,7 @@ const WorkshopsDash = () => {
 
   const resetWorkshops = () => {
     fetchResources(
-      'http://localhost:3000/api/v1/workshops',
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/workshops`,
       setWorkshops,
       'workshops'
     );
