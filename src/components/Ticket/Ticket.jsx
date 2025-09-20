@@ -14,7 +14,6 @@ const Ticket = ({ order, isModal = false }) => {
       bg='rgba(243, 244, 246, 0.7)'
       width={isModal ? '100%' : '30%'}
       boxShadow='sm'
-      w='300px'
     >
       <Flex direction='column' align='center'>
         <Image src='/favicon.png' alt='logo' boxSize='50px' />
