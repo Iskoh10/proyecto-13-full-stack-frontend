@@ -22,21 +22,33 @@ export const DashboardProvider = ({ children }) => {
   const { showToast } = useCustomToast();
 
   useEffect(() => {
-    fetchResources('http://localhost:3000/api/v1/orders', setOrders, 'orders');
-    fetchResources('http://localhost:3000/api/v1/users', setUsers, 'users');
     fetchResources(
-      'http://localhost:3000/api/v1/products?all=true',
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/orders`,
+      setOrders,
+      'orders'
+    );
+    fetchResources(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/users`,
+      setUsers,
+      'users'
+    );
+    fetchResources(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/products?all=true`,
       setProducts,
       'products'
     );
     fetchResources(
-      'http://localhost:3000/api/v1/workshops',
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/workshops`,
       setWorkshops,
       'workshops'
     );
-    fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
     fetchResources(
-      'http://localhost:3000/api/v1/comments',
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/blogs`,
+      setBlogs,
+      'blogs'
+    );
+    fetchResources(
+      `${import.meta.env.VITE_BACKEND_URL}/api/v1/comments`,
       setComments,
       'comments'
     );
@@ -89,7 +101,7 @@ export const DashboardProvider = ({ children }) => {
 
     try {
       const res = await fetch(
-        `http://localhost:3000/api/v1/${resource}/${route}`,
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/${resource}/${route}`,
         {
           method: 'DELETE',
           headers: { 'Content-Type': 'application/json' },
@@ -114,7 +126,7 @@ export const DashboardProvider = ({ children }) => {
 
       if (setter === setProducts) {
         fetchResources(
-          'http://localhost:3000/api/v1/products?all=true',
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products?all=true`,
           setProducts,
           'products'
         );
@@ -122,19 +134,23 @@ export const DashboardProvider = ({ children }) => {
 
       if (setter === setComments) {
         fetchResources(
-          'http://localhost:3000/api/v1/comments',
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/comments`,
           setComments,
           'comments'
         );
       }
 
       if (setter === setBlogs) {
-        fetchResources('http://localhost:3000/api/v1/blogs', setBlogs, 'blogs');
+        fetchResources(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/blogs`,
+          setBlogs,
+          'blogs'
+        );
       }
 
       if (setter === setWorkshops) {
         fetchResources(
-          'http://localhost:3000/api/v1/workshops',
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/workshops`,
           setWorkshops,
           'workshops'
         );
@@ -157,12 +173,14 @@ export const DashboardProvider = ({ children }) => {
     try {
       let res;
       if (filter === 'allProducts') {
-        res = await fetch('http://localhost:3000/api/v1/products?all=true');
+        res = await fetch(
+          `${import.meta.env.VITE_BACKEND_URL}/api/v1/products?all=true`
+        );
       } else {
         res = await fetch(
-          `http://localhost:3000/api/v1/products/filter?typeProduct=${encodeURIComponent(
-            filter
-          )}`
+          `${
+            import.meta.env.VITE_BACKEND_URL
+          }/api/v1/products/filter?typeProduct=${encodeURIComponent(filter)}`
         );
       }
 

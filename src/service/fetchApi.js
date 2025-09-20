@@ -1,6 +1,7 @@
 const fetchApi = async ({ filters, page = 1 }) => {
   try {
-    let url = 'http://localhost:3000/api/v1/products';
+    console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
+    let url = `${import.meta.env.VITE_BACKEND_URL}/api/v1/products`;
 
     if (filters.typeProduct && filters.typeProduct !== 'allProducts') {
       url += `/filter?typeProduct=${encodeURIComponent(

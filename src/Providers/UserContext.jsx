@@ -18,9 +18,12 @@ export const UserProvider = ({ children }) => {
   const checkUser = async () => {
     setLoading(true);
     try {
-      const res = await fetch('http://localhost:3000/api/v1/auth/me', {
-        credentials: 'include'
-      });
+      const res = await fetch(
+        `${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/me`,
+        {
+          credentials: 'include'
+        }
+      );
 
       if (res.status === 401) {
         setUser(null);
@@ -53,7 +56,7 @@ export const UserProvider = ({ children }) => {
 
   const logoutUser = async () => {
     try {
-      await fetch('http://localhost:3000/api/v1/auth/logout', {
+      await fetch(`${import.meta.env.VITE_BACKEND_URL}/api/v1/auth/logout`, {
         method: 'POST',
         credentials: 'include'
       });
