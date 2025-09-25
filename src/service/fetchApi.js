@@ -1,6 +1,5 @@
 const fetchApi = async ({ filters, page = 1 }) => {
   try {
-    console.log('Backend URL:', import.meta.env.VITE_BACKEND_URL);
     let url = `${import.meta.env.VITE_BACKEND_URL}/api/v1/products`;
 
     if (filters.typeProduct && filters.typeProduct !== 'allProducts') {

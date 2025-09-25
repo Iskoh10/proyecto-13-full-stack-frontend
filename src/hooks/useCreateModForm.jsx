@@ -77,8 +77,6 @@ const useCreateModForm = ({
         status: 'success'
       });
     } catch (error) {
-      console.log(error);
-
       showToast({
         title: 'Error',
         description: `No se pudo guardar el ${targetText}`,

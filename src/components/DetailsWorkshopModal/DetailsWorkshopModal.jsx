@@ -53,7 +53,7 @@ const DetailsWorkshopModal = ({
             <Flex mt={3} justify='center' gap={4}>
               <Button
                 bg='green.300'
-                onClick={() => handleVote(selectedWorkshop._id, 'like')}
+                onClick={() => handleVote('workshops', 'like')}
                 disabled={hasVote}
                 fontSize={{ base: '0.8rem', md: '1rem' }}
               >
@@ -62,7 +62,7 @@ const DetailsWorkshopModal = ({
               <Button
                 bg='red.300'
                 fontSize={{ base: '0.8rem', md: '1rem' }}
-                onClick={() => handleVote(selectedWorkshop._id, 'dislike')}
+                onClick={() => handleVote('workshops', 'dislike')}
                 disabled={hasVote}
               >
                 💔 No me gusta
